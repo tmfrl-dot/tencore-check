@@ -37,7 +37,8 @@ body{
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .logo{font-weight:800;font-size:20px;letter-spacing:.5px}
 .logo em{font-style:normal;color:var(--accent)}
-.gear{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 12px;color:var(--sub);font-size:13px;cursor:pointer}
+.gear{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 11px;color:var(--sub);font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.hbtns{display:flex;gap:6px;flex-shrink:0}
 .monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .monthbar h2{font-size:18px;font-weight:700}
 .nav{background:var(--card);border:1px solid var(--line);border-radius:10px;width:38px;height:38px;font-size:16px;color:var(--ink);cursor:pointer}
@@ -117,7 +118,8 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .note a{color:var(--accent)}
 /* settings */
 .set-item{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.set-item span{width:22px;font-size:13px;color:var(--sub);text-align:right}
+.set-item span{width:22px;font-size:13px;color:var(--sub);text-align:right;flex-shrink:0}
+.set-item.askrow span{width:36px;white-space:nowrap}
 .set-item input{
   flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;
   padding:11px 12px;font-size:14px;color:var(--ink);font-family:inherit;
@@ -144,7 +146,10 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   <div class="view on" id="view-cal">
     <header>
       <div class="logo">10 <em>CORE</em></div>
-      <button class="gear" onclick="openSettings()">항목 설정</button>
+      <div class="hbtns">
+        <button class="gear" id="btn-ask" onclick="openAsk()">문의하기</button>
+        <button class="gear" onclick="openSettings()">항목 설정</button>
+      </div>
     </header>
     <div class="monthbar">
       <button class="nav" onclick="moveMonth(-1)">‹</button>
@@ -217,6 +222,28 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     </div>
   </div>
 
+  <div class="view" id="view-ask">
+    <button class="back" onclick="showCal()">‹ 달력으로</button>
+    <div class="daytitle">문의 · 오류 신고</div>
+    <div class="note" style="text-align:left;margin:0 0 10px">불편한 점이나 안 되는 기능을 적어 보내주세요.<br>어떤 기기·브라우저에서 생긴 문제인지는 자동으로 함께 전달됩니다.<br>화면 캡처를 첨부하면 원인을 훨씬 빨리 찾을 수 있습니다.</div>
+    <div class="set-item askrow"><span>이름</span><input id="ask-name" maxlength="20" placeholder="누가 보냈는지 (선택)"></div>
+    <div class="set-item askrow"><span>연락</span><input id="ask-contact" maxlength="60" placeholder="답을 받을 카톡 ID·이메일 (선택)"></div>
+    <textarea id="ask-msg" maxlength="1000" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;min-height:90px;resize:vertical" placeholder="예: 아이폰 사파리에서 체크박스를 눌러도 반응이 없습니다"></textarea>
+    <input type="file" id="ask-file" accept="image/*" style="display:none" onchange="pickShot(this)">
+    <div class="btnrow" style="margin-top:8px">
+      <button class="btn ghost" onclick="document.getElementById('ask-file').click()">📷 캡처 첨부</button>
+      <button class="btn primary" id="ask-btn" onclick="sendInquiry()">문의 보내기</button>
+    </div>
+    <div id="shot-box" style="display:none;margin-top:10px">
+      <img id="shot-img" alt="첨부한 캡처" style="width:100%;max-height:220px;object-fit:contain;border:1px solid var(--line);border-radius:10px;display:block;background:var(--card)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">
+        <span id="shot-info" style="font-size:12px;color:var(--sub)"></span>
+        <button onclick="clearShot()" style="background:none;border:none;color:var(--danger);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:2px 0">첨부 취소</button>
+      </div>
+    </div>
+    <div class="note" id="ask-status" style="margin-top:8px"></div>
+  </div>
+
 </div>
 
 <div class="modal" id="modal" onclick="if(event.target===this)this.classList.remove('on')">
@@ -247,6 +274,36 @@ const DEFAULT_ITEMS = [
   "운동","30분 독서","오디오 듣기","미팅 참석","제품 애용",
   "소비자 관리","STP","상담","신뢰쌓기","E-Com"
 ];
+// 문제 신고가 들어왔을 때 어느 버전에서 생긴 일인지 알 수 있도록 버전을 박아둔다.
+const APP_VERSION = "2026.09.22";
+// 운영자 문의 수집기 주소(앱스 스크립트 웹앱). 비어 있으면 문의 칸이 숨겨진다.
+const INQUIRY_URL = "https://script.google.com/macros/s/AKfycbyIjmKOuwzmo9TyiFOuHoN8niH0bVTJWffFeFXL15gehN8zTK1YwYdTTA-LGHiXvbOFqg/exec";
+
+// 최근에 발생한 오류를 몇 건만 기억해 둔다. 문의를 보낼 때 같이 첨부해서
+// "안 되는데요"만 받고 원인을 못 찾는 상황을 줄인다.
+const errLog = [];
+function noteErr(kind, msg){
+  try{
+    const line = kind + ": " + String(msg).slice(0, 180);
+    if(errLog[errLog.length-1] !== line) errLog.push(line);
+    while(errLog.length > 6) errLog.shift();
+  }catch(e){}
+}
+window.addEventListener("error", function(ev){
+  noteErr("error", (ev && ev.message ? ev.message : "unknown") + " @" + ((ev && ev.lineno) || "?"));
+});
+window.addEventListener("unhandledrejection", function(ev){
+  const r = ev && ev.reason;
+  noteErr("promise", (r && r.message) ? r.message : String(r));
+});
+(function(){
+  const orig = console.error;
+  console.error = function(){
+    try{ noteErr("console", Array.prototype.slice.call(arguments).map(String).join(" ")); }catch(e){}
+    try{ orig.apply(console, arguments); }catch(e){}
+  };
+})();
+
 let state = { items: DEFAULT_ITEMS.slice(), days: {}, itemsV: 2, streakMode: "any", streakGoal: 66, modeV: 2 };
 let cur = new Date();
 let selKey = null;
@@ -910,6 +967,152 @@ function readSyncFields(){
   if(a) sync.auto = a.value === "1";
 }
 
+// ---------- 문의 보내기 ----------
+function inquiryReady(){ return !!(INQUIRY_URL && /^https?:\/\//.test(INQUIRY_URL)); }
+
+function openAsk(){
+  flushPersist();
+  const an = document.getElementById("ask-name");
+  if(an && !an.value) an.value = sync.name || "";
+  setAskStatus("");
+  show("view-ask");
+}
+
+function deviceInfo(){
+  const bits = [];
+  try{ bits.push(navigator.userAgent); }catch(e){}
+  try{ bits.push("lang=" + (navigator.language || "?")); }catch(e){}
+  try{ bits.push("localStorage=" + (function(){ try{ localStorage.setItem("_t","1"); localStorage.removeItem("_t"); return "ok"; }catch(e){ return "blocked"; } })()); }catch(e){}
+  try{ bits.push("창=" + window.innerWidth + "x" + window.innerHeight + "@" + (window.devicePixelRatio||1)); }catch(e){}
+  try{ bits.push("기록=" + Object.keys(state.days||{}).length + "일"); }catch(e){}
+  try{ bits.push("시트연동=" + (syncReady() ? "예" : "아니오")); }catch(e){}
+  return bits.join(" | ");
+}
+
+// 사진은 그대로 보내면 용량이 너무 커서 실패하기 쉽다. 긴 변 1200px, JPEG 품질 0.72로
+// 줄여서 보낸다. 글자를 읽을 수 있는 선은 유지되고, 대개 200~400KB로 떨어진다.
+let shotData = null;   // base64 (접두어 제외)
+let shotType = "image/jpeg";
+
+function pickShot(inp){
+  const f = inp.files && inp.files[0];
+  inp.value = "";
+  if(!f) return;
+  if(!/^image\//.test(f.type)){ setAskStatus("이미지 파일만 첨부할 수 있습니다"); return; }
+  setAskStatus("캡처를 준비하는 중...");
+
+  const r = new FileReader();
+  r.onerror = function(){ setAskStatus("캡처를 읽지 못했습니다"); };
+  r.onload = function(){
+    const img = new Image();
+    img.onerror = function(){ setAskStatus("캡처를 읽지 못했습니다"); };
+    img.onload = function(){
+      try{
+        const MAX = 1200;
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const scale = Math.min(1, MAX / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+
+        const cv = document.createElement("canvas");
+        cv.width = w; cv.height = h;
+        const cx = cv.getContext("2d");
+        cx.fillStyle = "#ffffff";
+        cx.fillRect(0, 0, w, h);
+        cx.drawImage(img, 0, 0, w, h);
+
+        let url = cv.toDataURL("image/jpeg", 0.72);
+        // 그래도 크면 한 번 더 줄인다
+        if(url.length > 1600000) url = cv.toDataURL("image/jpeg", 0.5);
+        if(url.length > 1600000){
+          setAskStatus("사진 용량이 너무 큽니다. 화면 일부만 잘라서 다시 첨부해 주세요");
+          return;
+        }
+
+        shotData = url.split(",")[1];
+        shotType = "image/jpeg";
+        document.getElementById("shot-img").src = url;
+        document.getElementById("shot-box").style.display = "block";
+        document.getElementById("shot-info").textContent =
+          w + "x" + h + " · 약 " + Math.round(shotData.length * 0.75 / 1024) + "KB";
+        setAskStatus("캡처가 첨부되었습니다");
+      }catch(e){
+        setAskStatus("캡처 처리 중 문제가 발생했습니다");
+      }
+    };
+    img.src = String(r.result || "");
+  };
+  r.readAsDataURL(f);
+}
+
+function clearShot(){
+  shotData = null;
+  document.getElementById("shot-box").style.display = "none";
+  document.getElementById("shot-img").removeAttribute("src");
+  setAskStatus("첨부를 취소했습니다");
+}
+
+async function sendInquiry(){
+  const btn = document.getElementById("ask-btn");
+  const msgEl = document.getElementById("ask-msg");
+  const msg = (msgEl.value || "").trim();
+
+  if(msg.length < 5){
+    setAskStatus("문의 내용을 5자 이상 적어주세요");
+    msgEl.focus();
+    return;
+  }
+  if(!inquiryReady()){
+    setAskStatus("문의 창구가 아직 설정되지 않았습니다");
+    return;
+  }
+
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.textContent = shotData ? "캡처와 함께 보내는 중..." : "보내는 중...";
+  setAskStatus("");
+
+  try{
+    const res = await fetch(INQUIRY_URL, {
+      method: "POST",
+      redirect: "follow",
+      body: JSON.stringify({
+        name: (document.getElementById("ask-name").value || "").trim(),
+        contact: (document.getElementById("ask-contact").value || "").trim(),
+        message: msg,
+        appVer: APP_VERSION,
+        device: deviceInfo(),
+        errors: errLog.join(" || "),
+        image: shotData || "",
+        imageType: shotType
+      })
+    });
+    const txt = await res.text();
+    let j = null;
+    try{ j = JSON.parse(txt); }catch(e){}
+    if(j && j.ok){
+      msgEl.value = "";
+      shotData = null;
+      document.getElementById("shot-box").style.display = "none";
+      document.getElementById("shot-img").removeAttribute("src");
+      setAskStatus(j.photo ? "보냈습니다 ✓ 캡처도 함께 전달되었습니다" : "보냈습니다 ✓ 확인 후 반영하겠습니다");
+      toast("문의가 접수되었습니다 ✓");
+    }else{
+      throw new Error((j && j.error) ? j.error : "전송에 실패했습니다");
+    }
+  }catch(e){
+    setAskStatus("전송 실패 · " + (e && e.message ? e.message : "연결을 확인해 주세요"));
+    toast("문의 전송에 실패했습니다");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+function setAskStatus(t){
+  const el = document.getElementById("ask-status");
+  if(el) el.textContent = t;
+}
+
 // ---------- 백업/복원 ----------
 function makeBackup(){
   const txt = JSON.stringify(state);
@@ -1012,10 +1215,17 @@ loadSync();
 renderCal();
 // Claude 아티팩트 안에서는 외부 주소로의 전송이 막혀 있어 연동 칸을 숨긴다.
 // (깃허브 등 일반 웹페이지로 열었을 때만 구글 시트 연동을 쓸 수 있다)
+// 문의 창구가 없거나(주소 미설정) 아티팩트 안이면 헤더의 [문의하기]를 숨긴다.
 if(window.claude && window.claude.use){
   const sb = document.getElementById("sync-box");
   if(sb) sb.style.display = "none";
+  const ba = document.getElementById("btn-ask");
+  if(ba) ba.style.display = "none";
 }else{
+  if(!inquiryReady()){
+    const ba = document.getElementById("btn-ask");
+    if(ba) ba.style.display = "none";
+  }
   setTimeout(function(){ flushQueue(true); }, 1500);
 }
 (async ()=>{

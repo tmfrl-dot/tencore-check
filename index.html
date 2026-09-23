@@ -155,6 +155,24 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   padding:8px 15px;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;font-family:inherit;white-space:nowrap;
 }
 .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (max-width:440px){ .tabbar{gap:4px} .tab{flex:1 1 auto;padding:8px 4px;font-size:12px;letter-spacing:-.2px} }
+
+/* ---- 감사일기 ---- */
+.gtitle{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin-bottom:14px}
+.gtitle span{font-size:13px;font-weight:500;color:var(--sub)}
+.cell .gcnt{font-size:10px;font-weight:700;color:var(--accent)}
+.cell .gcnt.full{color:var(--gold)}
+.gsec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:10px}
+.gsec h3{display:flex;align-items:center;justify-content:space-between;font-size:14.5px;font-weight:700;margin:0 2px 8px}
+.gsec h3 span{font-size:12px;color:var(--sub);font-weight:600}
+.gline{display:flex;gap:6px;align-items:flex-start;margin-bottom:6px}
+.gline i{flex:0 0 18px;font-style:normal;font-size:12px;color:var(--gold);font-weight:800;padding-top:11px;text-align:center}
+.gline textarea{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;color:var(--ink);font-family:inherit;resize:none;min-height:42px;line-height:1.45}
+.gline textarea:focus{outline:none;border-color:var(--accent)}
+.gline .gdel{flex:0 0 30px;height:40px;border:none;background:none;color:var(--danger);font-size:15px;cursor:pointer;font-family:inherit}
+.gline .gdel.off{visibility:hidden}
+.gadd{display:block;width:100%;border:1px dashed var(--accent);background:var(--card);border-radius:14px;padding:13px;font-size:14px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;margin-bottom:4px}
+#gpreview-img{max-height:62vh;object-fit:contain;background:#f7f3ea}
 
 /* ---- 소비자/파트너 공통: 필터칩, 단계뱃지 ---- */
 .chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px;padding-bottom:2px}
@@ -195,10 +213,41 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 <div class="wrap">
 
   <div class="tabbar" id="tabbar">
+    <button class="tab" data-tab="view-grat" onclick="openTab('view-grat')">🙏 감사</button>
     <button class="tab" data-tab="view-cal" onclick="openTab('view-cal')">✅ 체크</button>
     <button class="tab" data-tab="view-consumers" onclick="openTab('view-consumers')">🛒 소비자</button>
     <button class="tab" data-tab="view-sponsors" onclick="openTab('view-sponsors')">💼 파트너</button>
     <button class="tab" data-tab="view-roadmap" onclick="openTab('view-roadmap')">🧭 로스맵</button>
+  </div>
+
+  <div class="view" id="view-grat">
+    <div class="daytitle gtitle">감사일기<span>감사할수록 감사할 일이 늘어난다</span></div>
+    <div class="monthbar">
+      <button class="nav" onclick="moveGratMonth(-1)">‹</button>
+      <h2 id="g-month-title"></h2>
+      <button class="nav" onclick="moveGratMonth(1)">›</button>
+    </div>
+    <div class="dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+    <div class="grid" id="g-grid"></div>
+    <div class="streak" id="g-streak"></div>
+    <div class="stats">
+      <div><b id="g-st-days">0</b><span>이번 달 감사한 날</span></div>
+      <div><b id="g-st-month">0</b><span>이번 달 감사</span></div>
+      <div><b id="g-st-total">0</b><span>누적 감사</span></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn primary" onclick="openGratDay(todayKey())">✍️ 오늘 감사 쓰기</button>
+    </div>
+  </div>
+
+  <div class="view" id="view-gday">
+    <button class="back" onclick="openTab('view-grat')">‹ 감사 달력으로</button>
+    <div class="daytitle" id="gday-title"></div>
+    <div class="pctbig">오늘의 감사 <b id="gday-count">0</b>개<span id="gday-streak" style="margin-left:10px;color:var(--gold);font-weight:700"></span></div>
+    <div id="gday-body"></div>
+    <div class="btnrow">
+      <button class="btn primary" onclick="openGratCard()">🖼 감사일기 이미지로 저장</button>
+    </div>
   </div>
 
   <div class="view on" id="view-cal">
@@ -379,6 +428,17 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   </div>
 </div>
 
+<div class="modal" id="gmodal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal-box">
+    <img id="gpreview-img" alt="감사일기 이미지">
+    <div class="btnrow">
+      <button class="btn ghost" onclick="document.getElementById('gmodal').classList.remove('on')">닫기</button>
+      <button class="btn primary" onclick="shareGratCard()">📤 사진 저장 / 공유</button>
+    </div>
+    <div class="note">버튼을 누르면 공유 창이 열립니다 → "이미지 저장"을 선택하세요<br>안 열리면 이미지를 길게 눌러 저장해 보세요</div>
+  </div>
+</div>
+
 <div class="modal" id="cfm" style="z-index:60">
   <div class="modal-box">
     <div style="font-size:15px;line-height:1.7" id="cfm-msg"></div>
@@ -471,7 +531,7 @@ window.addEventListener("unhandledrejection", function(ev){
 
 let state = {
   items: DEFAULT_ITEMS.slice(), days: {}, itemsV: 2, streakMode: "any", streakGoal: 66, modeV: 2,
-  people: [], peopleV: 1,
+  people: [], peopleV: 1, grat: {},
   consumerStages: ["데모","구매"],
   sponsorStages: ["제품체험","사업설명","Tool","사업시작요령"]
 };
@@ -492,6 +552,7 @@ function load(){
       if(d && Array.isArray(d.consumerStages) && d.consumerStages.length) state.consumerStages = d.consumerStages;
       if(d && Array.isArray(d.sponsorStages) && d.sponsorStages.length) state.sponsorStages = d.sponsorStages;
       if(d && Array.isArray(d.people)) state.people = d.people;
+      if(d && d.grat && typeof d.grat==="object") state.grat = d.grat;
       if(d && d.days && typeof d.days==="object"){
         state.days = d.days;
         // v1 -> v2 마이그레이션
@@ -515,7 +576,7 @@ function persist(){
 // 입력 중 디바운스로 예약된 저장이 있으면 지금 즉시 실행한다.
 // 화면 전환/입력창에서 손 뗄 때/앱을 나갈 때처럼 상태를 확정해야 하는 순간에 호출한다.
 function flushPersist(){
-  if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; persist(); }
+  if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; persist(); if(gKey) syncPush(gKey); }
   if(selKey) syncDayToPeople(selKey);
 }
 let cloudTimer;
@@ -534,6 +595,7 @@ function normalizeState(d){
     streakMode: (d.streakMode==="full" ? "full" : "any"),
     streakGoal: (d.streakGoal>0 ? d.streakGoal : 66),
     people: Array.isArray(d.people) ? d.people : [], peopleV: 1,
+    grat: (d.grat && typeof d.grat==="object") ? d.grat : {},
     consumerStages: (Array.isArray(d.consumerStages) && d.consumerStages.length) ? d.consumerStages : ["데모","구매"],
     sponsorStages: (Array.isArray(d.sponsorStages) && d.sponsorStages.length) ? d.sponsorStages : ["제품체험","사업설명","Tool","사업시작요령"],
     ts: d.ts || 0
@@ -657,7 +719,7 @@ function renderCal(){
 function moveMonth(n){ cur = new Date(cur.getFullYear(), cur.getMonth()+n, 1); renderCal(); }
 
 // ---------- 뷰 전환 ----------
-const MAIN_VIEWS = ["view-cal","view-consumers","view-sponsors","view-roadmap"];
+const MAIN_VIEWS = ["view-grat","view-cal","view-consumers","view-sponsors","view-roadmap"];
 function show(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
   document.getElementById(id).classList.add("on");
@@ -679,6 +741,7 @@ function openTab(id){
   else if(id==="view-consumers") renderConsumers();
   else if(id==="view-sponsors") renderSponsors();
   else if(id==="view-roadmap") renderRoadmap();
+  else if(id==="view-grat") renderGratCal();
   show(id);
 }
 
@@ -903,6 +966,392 @@ function updatePct(){
     if(cy.lap>1) txt += " · "+cy.lap+"바퀴째";
     ds.textContent = txt;
   } else ds.textContent = "";
+}
+
+// ---------- 감사일기 ----------
+// 하루에 [나 / 타인 / 존재하는 것들] 세 가지 감사를 기본으로 쓰고,
+// 더 떠오르면 맨 아래 [＋ 감사 추가]로 4번째, 5번째 감사를 이어서 적는다.
+// 한 줄이라도 쓴 날은 감사 달력에 개수가 찍히고 연속 기록이 이어진다.
+const GRAT_CATS = [
+  { k:"self",  label:"나에 대한 감사",          short:"나",   ph:"예: 피곤했지만 운동을 끝까지 해낸 나에게 감사" },
+  { k:"other", label:"타인에 대한 감사",        short:"타인", ph:"예: 먼저 안부를 물어준 OO님에게 감사" },
+  { k:"exist", label:"존재하는 것들에 대한 감사", short:"존재", ph:"예: 오늘 마신 따뜻한 커피 한 잔에 감사" }
+];
+const GRAT_EXTRA = { k:"extra", label:"더 감사한 것들", short:"추가" };
+// 감사일기 이미지 하단 문구. 날짜마다 하나씩 돌아가며 바뀐다(같은 날은 늘 같은 문구).
+// 사랑은 연인 사이의 사랑보다 사람을 향한 사랑·친절·나눔 위주로 골랐다. 이미지에는 문구만 넣는다.
+const GRAT_QUOTES = [
+  "행복해서 감사한 것이 아니라, 감사해서 행복한 것이다",
+  "감사는 고귀한 영혼의 표시다",
+  "감사는 가장 큰 미덕이자 모든 미덕의 어버이다",
+  "감사는 과거를 이해하게 하고, 오늘에 평화를 주며, 내일을 꿈꾸게 한다",
+  "가진 것에 감사하면 더 많은 것을 갖게 된다",
+  "감사를 느끼고도 말하지 않는 것은 선물을 포장해 두고 건네지 않는 것과 같다",
+  "감사는 마음이 기억하는 것이다",
+  "범사에 감사하라",
+  "감사할 일을 세어 보면 걱정할 일보다 훨씬 많다",
+  "감사할 줄 아는 사람은 이미 부자다",
+  "받은 은혜는 돌에 새기고, 베푼 은혜는 물에 새겨라",
+  "감사로 시작한 하루에는 불평이 들어설 자리가 없다",
+  "당연한 것은 없다. 알아차리는 순간 모든 것이 선물이 된다",
+  "오늘 감사한 세 가지가 내일의 나를 바꾼다",
+  "감사는 가진 것을 충분한 것으로 바꾼다",
+  "불평은 문제를 크게 보고, 감사는 길을 크게 본다",
+  "감사하는 사람의 눈에는 평범한 하루도 특별해진다",
+  "감사는 마음의 근육이다. 쓸수록 단단해진다",
+  "작은 것에 감사할 줄 알면 큰 것도 저절로 따라온다",
+  "오늘 숨 쉬고 있다는 것만으로도 감사할 이유는 충분하다",
+  "감사는 어제를 받아들이고 내일을 여는 열쇠다",
+  "고마움은 표현할 때 비로소 완성된다",
+  "감사하는 마음은 어떤 날씨에도 피는 꽃이다",
+  "행복의 문은 감사라는 손잡이로 열린다",
+  "감사를 적는 손은 불안을 내려놓는다",
+  "평범한 오늘이 누군가에게는 간절히 바라던 하루다",
+  "감사는 가장 조용하고 가장 강한 기도다",
+  "있는 것을 세는 사람은 없는 것에 흔들리지 않는다",
+  "감사는 나를 낮추는 것이 아니라 나를 넓히는 것이다",
+  "고맙다는 말 한마디가 누군가의 하루를 살린다",
+  "감사가 습관이 되면 행복은 결과가 된다",
+  "어려움 속에서 찾은 감사가 가장 깊다",
+  "우리는 큰일을 할 수 없다. 다만 작은 일을 큰 사랑으로 할 뿐이다",
+  "친절한 말은 짧고 쉽지만, 그 메아리는 끝이 없다",
+  "평화는 미소에서 시작된다",
+  "내가 하는 일은 바다의 물 한 방울 같아도, 그 한 방울이 없으면 바다는 그만큼 줄어든다",
+  "미움은 미움을 몰아낼 수 없다. 오직 사랑만이 그것을 할 수 있다",
+  "작은 친절은 결코 헛되지 않다",
+  "네 이웃을 네 몸과 같이 사랑하라",
+  "사랑은 오래 참고, 사랑은 온유하다",
+  "완전한 사랑은 두려움을 내쫓는다",
+  "어진 마음이란 사람을 사랑하는 것이다",
+  "덕은 외롭지 않으니 반드시 이웃이 있다",
+  "내가 원하지 않는 일은 남에게도 하지 말라",
+  "가장 아름다운 것은 눈으로 보이지 않는다. 마음으로 느껴야 한다",
+  "혼자서는 작은 일밖에 못 하지만, 함께라면 많은 일을 할 수 있다",
+  "모두를 사랑하고, 몇 사람을 믿고, 누구에게도 해를 끼치지 말라",
+  "사랑받고 싶다면 먼저 사랑하라",
+  "사랑이 있는 곳에 생명이 있다",
+  "남을 행복하게 하는 것은 향수를 뿌리는 것과 같다. 뿌리는 사람에게도 몇 방울은 묻는다",
+  "사랑은 나눌수록 줄지 않고 커진다",
+  "한 사람에게 베푼 친절이 세상은 못 바꿔도, 그 사람의 세상은 바꿀 수 있다",
+  "먼저 웃고, 먼저 인사하고, 먼저 고마움을 전하자",
+  "받은 사랑을 기억하는 사람은 다시 누군가를 사랑할 수 있다",
+  "사람은 받은 것으로 살아가고, 나눈 것으로 삶을 채운다",
+  "누군가의 짐을 덜어 준 사람은 결코 쓸모없는 사람이 아니다",
+  "따뜻한 말 한마디는 겨울 석 달을 따뜻하게 한다",
+  "사랑은 명사가 아니라 동사다. 행동할 때 비로소 사랑이 된다",
+  "세상을 바꾸는 것은 거창한 결심이 아니라 작은 친절의 반복이다",
+  "다른 사람의 좋은 점을 먼저 보는 것이 사랑의 시작이다",
+  "내가 켠 작은 촛불이 다른 사람의 길도 비춘다",
+  "함께 웃는 사람이 많을수록 삶은 넉넉해진다",
+  "사람을 귀하게 여기는 마음이 가장 귀한 재산이다",
+  "손을 내밀면 닿는 거리에 늘 누군가 있다",
+  "나누는 기쁨은 두 배가 되고, 나누는 슬픔은 반이 된다",
+  "오늘 만난 한 사람에게 최선을 다하는 것, 그것이 사랑이다",
+  "판단하기 전에 먼저 이해하려는 마음이 사람을 살린다",
+  "친절은 귀가 들리지 않는 사람도 듣고, 눈이 보이지 않는 사람도 볼 수 있는 언어다",
+  "사랑은 상대를 바꾸려 하지 않고, 있는 그대로 비추어 준다",
+  "좋은 사람 곁에는 좋은 사람이 모인다",
+  "누군가를 돕는 순간, 나 역시 도움을 받는다",
+  "작은 배려가 모여 서로를 지키는 울타리가 된다",
+  "사랑하는 법을 배우는 것이 인생에서 가장 큰 공부다",
+  "세상은 서로 기대어 살아가는 사람들로 따뜻해진다",
+  "사람이 사람에게 줄 수 있는 가장 큰 선물은 관심이다"
+];
+function gratQuoteOf(key){
+  const dayNum = Math.floor(parseKey(key).getTime()/86400000);
+  return GRAT_QUOTES[((dayNum % GRAT_QUOTES.length)+GRAT_QUOTES.length) % GRAT_QUOTES.length];
+}
+let gCur = new Date();
+let gKey = null;
+function gratData(key){
+  if(!state.grat || typeof state.grat!=="object") state.grat = {};
+  let g = state.grat[key];
+  if(!g || typeof g!=="object") g = state.grat[key] = {};
+  if(!Array.isArray(g.extra)) g.extra = [];
+  GRAT_CATS.forEach(function(c){
+    if(!Array.isArray(g[c.k])) g[c.k] = [];
+    if(!g[c.k].length) g[c.k].push({ id: genId(), text:"" });
+    // 예전 버전에서 칸마다 늘려 쓴 감사는 [더 감사한 것들]로 옮긴다.
+    if(g[c.k].length > 1){
+      g[c.k].slice(1).forEach(function(e){ if((e.text||"").trim()) g.extra.push(e); });
+      g[c.k] = g[c.k].slice(0,1);
+    }
+  });
+  return g;
+}
+function gratLines(key){
+  const g = state.grat && state.grat[key];
+  if(!g) return [];
+  const out = [];
+  GRAT_CATS.concat([GRAT_EXTRA]).forEach(function(c){
+    (Array.isArray(g[c.k]) ? g[c.k] : []).forEach(function(e){
+      const t = (e && e.text || "").trim();
+      if(t) out.push({ cat:c, text:t });
+    });
+  });
+  return out;
+}
+function gratCount(key){ return gratLines(key).length; }
+// 기본 세 가지를 모두 채운 날
+function gratFull(key){
+  const g = state.grat && state.grat[key];
+  if(!g) return false;
+  return GRAT_CATS.every(function(c){
+    return (Array.isArray(g[c.k]) ? g[c.k] : []).some(function(e){ return (e && e.text || "").trim(); });
+  });
+}
+function gratStreakUpTo(key){
+  let n=0, dt=parseKey(key);
+  while(n<2000 && gratCount(keyOf(dt.getFullYear(),dt.getMonth(),dt.getDate()))>0){ n++; dt.setDate(dt.getDate()-1); }
+  return n;
+}
+function gratCurrentStreak(){
+  const tk = todayKey();
+  if(gratCount(tk)>0) return gratStreakUpTo(tk);
+  const y=new Date(); y.setDate(y.getDate()-1);
+  return gratStreakUpTo(keyOf(y.getFullYear(),y.getMonth(),y.getDate()));
+}
+function gratSheetText(key){
+  const lines = gratLines(key);
+  if(!lines.length) return "";
+  return "감사("+lines.length+"): " + lines.map(function(l){ return l.cat.short+") "+l.text.replace(/\s*\n\s*/g," "); }).join("; ");
+}
+function renderGratCal(){
+  const y = gCur.getFullYear(), m = gCur.getMonth();
+  document.getElementById("g-month-title").textContent = y+"년 "+(m+1)+"월";
+  const first = new Date(y,m,1).getDay();
+  const last = new Date(y,m+1,0).getDate();
+  const tKey = todayKey();
+  let html = "";
+  for(let i=0;i<first;i++) html += '<div class="cell empty"></div>';
+  let days=0, monthSum=0;
+  for(let d=1; d<=last; d++){
+    const k = keyOf(y,m,d);
+    const n = gratCount(k);
+    if(n>0){ days++; monthSum+=n; }
+    const dow = new Date(y,m,d).getDay();
+    let inner = '<span class="num">'+d+'</span>';
+    inner += n>0 ? '<span class="gcnt'+(gratFull(k)?" full":"")+'">'+n+'개</span>' : '<span class="ring"></span>';
+    html += '<div class="cell'+(k===tKey?" today":"")+(dow===0?" sun":"")+'" onclick="openGratDay(\''+k+'\')">'+inner+'</div>';
+  }
+  document.getElementById("g-grid").innerHTML = html;
+  let total = 0;
+  Object.keys(state.grat||{}).forEach(function(k){ total += gratCount(k); });
+  document.getElementById("g-st-days").textContent = days;
+  document.getElementById("g-st-month").textContent = monthSum;
+  document.getElementById("g-st-total").textContent = total;
+  const cs = gratCurrentStreak();
+  const cy = cycleOf(cs);
+  let right = cy.day+' / '+cy.goal+'일';
+  if(cy.laps>0) right = '🏆 '+cy.laps+'바퀴 완주 · '+right;
+  if(gratCount(tKey)===0) right += ' · 오늘 아직 미작성';
+  document.getElementById("g-streak").innerHTML =
+    '<div class="top"><b>🙏 연속 '+cs+'일째 감사</b><span>'+right+'</span></div>'
+    +'<div class="goalbar"><i style="width:'+Math.min(100, cy.day/cy.goal*100)+'%"></i></div>';
+}
+function moveGratMonth(n){ gCur = new Date(gCur.getFullYear(), gCur.getMonth()+n, 1); renderGratCal(); }
+function openGratDay(key){
+  flushPersist();
+  gKey = key;
+  const dt = parseKey(key);
+  const dowName = ["일","월","화","수","목","금","토"][dt.getDay()];
+  document.getElementById("gday-title").textContent = (dt.getMonth()+1)+"월 "+dt.getDate()+"일 ("+dowName+") 감사일기";
+  renderGratDay();
+  show("view-gday");
+}
+function gLineHtml(ck, e, num, ph, deletable){
+  return '<div class="gline"><i>'+num+'</i>'
+    + '<textarea rows="1" id="g-'+e.id+'" placeholder="'+escAttr(ph)+'" oninput="setGrat(\''+ck+'\',\''+e.id+'\',this.value);autoGrow(this)" onblur="flushPersist()">'+esc(e.text||"")+'</textarea>'
+    + (deletable ? '<button type="button" class="gdel" data-gact="del" data-c="'+ck+'" data-e="'+e.id+'" aria-label="삭제">✕</button>' : '')
+    + '</div>';
+}
+function renderGratDay(focusId){
+  const g = gratData(gKey);
+  let html = '';
+  GRAT_CATS.forEach(function(c, idx){
+    html += '<div class="gsec"><h3>'+esc(c.label)+'</h3>' + gLineHtml(c.k, g[c.k][0], idx+1, c.ph, false) + '</div>';
+  });
+  if(g.extra.length){
+    html += '<div class="gsec"><h3>'+esc(GRAT_EXTRA.label)+'<span>'+g.extra.length+'개</span></h3>';
+    g.extra.forEach(function(e, i){ html += gLineHtml("extra", e, GRAT_CATS.length+i+1, "감사한 일을 하나 더 적어보세요", true); });
+    html += '</div>';
+  }
+  html += '<button type="button" class="gadd" data-gact="add">＋ 감사 추가</button>';
+  document.getElementById("gday-body").innerHTML = html;
+  document.querySelectorAll("#gday-body textarea").forEach(autoGrow);
+  updateGratHead();
+  if(focusId){ const el = document.getElementById("g-"+focusId); if(el){ try{ el.focus(); }catch(err){} } }
+}
+function autoGrow(el){ el.style.height = "auto"; el.style.height = Math.max(42, el.scrollHeight+2)+"px"; }
+function updateGratHead(){
+  document.getElementById("gday-count").textContent = gratCount(gKey);
+  const ds = document.getElementById("gday-streak");
+  if(gratCount(gKey)>0){
+    const cy = cycleOf(gratStreakUpTo(gKey));
+    ds.textContent = cy.day===cy.goal ? ("🏆 "+cy.goal+"일 완주!") : ("🙏 DAY "+cy.day);
+  }else ds.textContent = "";
+}
+function gratPersist(){ persist(); if(gKey) syncPush(gKey); }
+function setGrat(ck, eid, v){
+  const g = gratData(gKey);
+  const e = (g[ck]||[]).find(function(x){ return x.id===eid; });
+  if(!e) return;
+  e.text = v;
+  updateGratHead();
+  clearTimeout(saveTimer); saveTimer = setTimeout(function(){ saveTimer = null; gratPersist(); }, 400);
+}
+function addGrat(){
+  flushPersist();
+  const g = gratData(gKey);
+  const e = { id: genId(), text:"" };
+  g.extra.push(e);
+  renderGratDay(e.id);
+}
+function removeGrat(ck, eid){
+  if(ck!=="extra") return;
+  const g = gratData(gKey);
+  const e = g.extra.find(function(x){ return x.id===eid; });
+  if(!e) return;
+  function go(){
+    g.extra = g.extra.filter(function(x){ return x.id!==eid; });
+    gratPersist();
+    renderGratDay();
+  }
+  if((e.text||"").trim()) askConfirm("이 감사를 지울까요?", go); else go();
+}
+(function setupGratDelegation(){
+  const box = document.getElementById("gday-body");
+  box.addEventListener("click", function(ev){
+    const el = ev.target.closest("[data-gact]");
+    if(!el) return;
+    const act = el.getAttribute("data-gact");
+    if(act==="add") addGrat();
+    else if(act==="del") removeGrat(el.getAttribute("data-c"), el.getAttribute("data-e"));
+  }, false);
+})();
+
+// ---- 감사일기 하루치 이미지 ----
+// 글 길이에 따라 세로 길이가 늘어나는 카드. 한글은 띄어쓰기 없이 길게 쓰는 경우가 많아
+// 글자 단위로 줄을 바꾼다.
+function wrapLines(x, text, maxW){
+  // 띄어쓰기 단위로 줄을 바꾸고, 한 단어가 한 줄보다 길 때만 글자 단위로 자른다.
+  const out = [];
+  String(text).split("\n").forEach(function(para){
+    let line = "";
+    para.split(/(\s+)/).forEach(function(tok){
+      if(!tok) return;
+      if(x.measureText(line+tok).width <= maxW){ line += tok; return; }
+      if(/^\s+$/.test(tok)){ out.push(line); line = ""; return; }
+      if(line.trim()){ out.push(line.replace(/\s+$/,"")); line = ""; }
+      for(const ch of tok){
+        if(x.measureText(line+ch).width > maxW && line){ out.push(line); line = ch; }
+        else line += ch;
+      }
+    });
+    out.push(line.replace(/\s+$/,""));
+  });
+  return out;
+}
+function drawGratCard(key){
+  const W = 1080, PAD = 90, MIN_H = 1350;
+  const dt = parseKey(key);
+  const dowName = ["일","월","화","수","목","금","토"][dt.getDay()];
+  const count = gratCount(key);
+  const C = { bg:"#f7f3ea", card:"#ffffff", ink:"#2a2620", sub:"#8f8676", gold:"#b8913f", green:"#2f6b4f", line:"#eee7d8" };
+  const F = {
+    kicker: "700 28px sans-serif",
+    title:  "800 76px sans-serif",
+    date:   "500 34px sans-serif",
+    badge:  "700 32px sans-serif",
+    num:    "800 38px sans-serif",
+    body:   "500 38px sans-serif",
+    quote:  "500 30px sans-serif"
+  };
+  // 줄 간격: 본문은 글자 크기의 1.65배, 항목 사이는 구분선을 두고 넉넉히 띄운다.
+  const BODY_LH = 63, ITEM_GAP = 60, CARD_PX = 56, CARD_PY = 58, NUMW = 66;
+  const QUOTE_LH = 50;
+  const cardW = W - PAD*2, textW = cardW - CARD_PX*2 - NUMW;
+
+  // 이미지에는 분류 이름 없이 쓴 감사만 1. 2. 3. … 순서로 담는다.
+  const m = document.createElement("canvas").getContext("2d");
+  m.font = F.body;
+  const wrapped = gratLines(key).map(function(l){ return wrapLines(m, l.text, textW); });
+  m.font = F.quote;
+  const qLines = wrapLines(m, gratQuoteOf(key), cardW - 60);
+
+  const HEAD_H = 290;
+  const listH = wrapped.reduce(function(sum, ls){ return sum + ls.length*BODY_LH; }, 0) + ITEM_GAP*Math.max(0, wrapped.length-1);
+  const cardH = listH + CARD_PY*2;
+  const QUOTE_GAP = 96;
+  const quoteH = 34 + qLines.length*QUOTE_LH;
+  const stackH = HEAD_H + cardH + QUOTE_GAP + quoteH;
+  const H = Math.max(MIN_H, stackH + 200);
+  // 내용이 짧아도 아래가 텅 비지 않게 전체를 세로 가운데에 놓는다.
+  const y0 = Math.round((H - stackH)/2);
+
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const x = cv.getContext("2d");
+  x.fillStyle = C.bg; x.fillRect(0,0,W,H);
+  x.textBaseline = "alphabetic";
+
+  // 머리글
+  let y = y0 + 28;
+  x.fillStyle = C.gold; x.font = F.kicker; x.fillText("GRATITUDE JOURNAL", PAD, y);
+  y += 94;
+  x.fillStyle = C.ink; x.font = F.title; x.fillText("감사일기", PAD, y);
+  y += 66;
+  x.fillStyle = C.sub; x.font = F.date;
+  x.fillText(dt.getFullYear()+"년 "+(dt.getMonth()+1)+"월 "+dt.getDate()+"일 ("+dowName+")", PAD, y);
+  let badge = "오늘의 감사 "+count+"개";
+  if(count>0){
+    const cy = cycleOf(gratStreakUpTo(key));
+    badge = (cy.day===cy.goal ? "🏆 "+cy.goal+"일 완주" : "🙏 DAY "+cy.day) + "   ·   " + badge;
+  }
+  y += 56;
+  x.fillStyle = C.green; x.font = F.badge; x.fillText(badge, PAD, y);
+
+  // 감사 목록 카드
+  const cardY = y0 + HEAD_H;
+  x.save();
+  x.shadowColor = "rgba(60,45,20,.08)"; x.shadowBlur = 30; x.shadowOffsetY = 8;
+  x.fillStyle = C.card; roundRect(x, PAD, cardY, cardW, cardH, 32); x.fill();
+  x.restore();
+  let ty = cardY + CARD_PY + 38; // 첫 줄 글자 기준선
+  wrapped.forEach(function(ls, i){
+    if(i>0){
+      // 이전 항목 마지막 줄 아래와 이번 항목 첫 줄 위의 한가운데
+      const lineY = Math.round(((ty - BODY_LH - ITEM_GAP + 12) + (ty - 32)) / 2);
+      x.strokeStyle = C.line; x.lineWidth = 2;
+      x.beginPath(); x.moveTo(PAD+CARD_PX, lineY); x.lineTo(PAD+cardW-CARD_PX, lineY); x.stroke();
+    }
+    x.fillStyle = C.gold; x.font = F.num; x.fillText((i+1)+".", PAD+CARD_PX, ty);
+    x.fillStyle = C.ink; x.font = F.body;
+    ls.forEach(function(l, j){ x.fillText(l, PAD+CARD_PX+NUMW, ty); if(j<ls.length-1) ty += BODY_LH; });
+    ty += BODY_LH + ITEM_GAP;
+  });
+
+  // 오늘의 문구
+  let qy = cardY + cardH + QUOTE_GAP;
+  x.strokeStyle = C.gold; x.lineWidth = 3;
+  x.beginPath(); x.moveTo(W/2-28, qy); x.lineTo(W/2+28, qy); x.stroke();
+  qy += 34 + 30;
+  x.fillStyle = C.sub; x.font = F.quote; x.textAlign = "center";
+  qLines.forEach(function(l){ x.fillText(l, W/2, qy); qy += QUOTE_LH; });
+  x.textAlign = "left";
+  return cv;
+}
+let gratCv = null;
+function openGratCard(){
+  flushPersist();
+  if(!gratCount(gKey)){ toast("먼저 감사를 한 가지 이상 적어주세요"); return; }
+  gratCv = drawGratCard(gKey);
+  document.getElementById("gpreview-img").src = gratCv.toDataURL("image/png");
+  document.getElementById("gmodal").classList.add("on");
+}
+async function shareGratCard(){
+  const cv = gratCv || drawGratCard(gKey);
+  await saveCanvasAsImage(cv, "감사일기_"+gKey.replace(/-/g,"")+".png");
 }
 
 // ---------- 설정 ----------
@@ -1716,7 +2165,7 @@ function rowOf(key){
     const n = (d.n[i]||"").trim(), t = (d.t[i]||"").trim().replace(/\s*\n\s*/g," ");
     if(!n && !t) return "";
     return nm+": "+[n,t].filter(Boolean).join(" — ");
-  }).filter(Boolean).join(" / ");
+  }).filter(Boolean).concat(gratSheetText(key)).filter(Boolean).join(" / ");
   return {
     name: sync.name || "",
     date: key,
@@ -1790,7 +2239,8 @@ async function pushAll(){
   readSyncFields();
   if(!syncReady()){ toast("먼저 웹앱 주소를 넣어주세요"); return; }
   saveSync();
-  const keys = Object.keys(state.days).filter(function(k){ return pctOf(k) > 0; }).sort();
+  const keys = Object.keys(state.days).concat(Object.keys(state.grat||{}))
+    .filter(function(k, i, a){ return a.indexOf(k)===i && (pctOf(k) > 0 || gratCount(k) > 0); }).sort();
   if(!keys.length){ toast("보낼 기록이 없습니다"); return; }
   syncBusy = true;
   setSyncStatus("전체 "+keys.length+"일치를 보내는 중...");

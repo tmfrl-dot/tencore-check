@@ -112,8 +112,9 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .ent-top{display:flex;gap:6px;align-items:center}
 .ent-top input{flex:1;min-width:0;font-weight:700}
 .ent input,.ent textarea{background:var(--card)}
-.ent .ent-memo{margin-top:6px}
-.ent textarea{margin-top:6px;min-height:54px}
+.ent textarea{margin-top:6px;min-height:60px}
+.pchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.pchips span{font-size:11.5px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 8px;line-height:1.5}
 .ent-del{flex:0 0 auto;width:34px;height:38px;border:none;background:none;color:var(--danger);font-size:16px;cursor:pointer;font-family:inherit}
 .ent-add{width:100%;border:1px dashed var(--line);background:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit}
 .ent-empty{font-size:12px;color:var(--sub);margin:2px 0 8px}
@@ -713,7 +714,7 @@ function renderItems(){
       +   '<div class="chkhit" data-act="toggle" data-i="'+i+'"><div class="chk">'+(d.c[i]?"✓":"")+'</div></div>'
       +   '<div class="imain" data-act="expand" data-i="'+i+'">'
       +     '<div class="iname">'+esc(name)+'</div>'
-      +     (note? '<div class="inote">✎ '+esc(note)+'</div>':'')
+      +     (LINK_ITEMS[i] ? peopleChips(d, i) : (note? '<div class="inote">✎ '+esc(note)+'</div>':''))
       +   '</div>'
       +   '<div class="iarrow" data-act="expand" data-i="'+i+'">›</div>'
       + '</div>'
@@ -729,6 +730,12 @@ function renderItems(){
   document.getElementById("items").innerHTML = html + peopleDatalists();
   updatePct();
 }
+// 소비자관리·STP·신뢰쌓기는 항목 이름 아래에 만난 사람 이름만 칩으로 보여준다.
+function peopleChips(d, i){
+  const names = entriesOf(d, i).map(function(e){ return (e.name||"").trim(); }).filter(Boolean);
+  if(!names.length) return '';
+  return '<div class="pchips">'+names.map(function(n){ return '<span>'+esc(n)+'</span>'; }).join("")+'</div>';
+}
 function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
 
 // ---- 소비자관리·STP·신뢰쌓기: 사람별 기록(노션 데이터베이스처럼 한 줄씩 추가) ----
@@ -737,6 +744,11 @@ function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
 function entriesOf(d, i){
   if(!d.p || typeof d.p!=="object") d.p = {};
   if(!Array.isArray(d.p[i])) d.p[i] = [];
+  // 예전의 간단 메모·상세 메모 두 칸을 메모 한 칸으로 합친다.
+  d.p[i].forEach(function(e){
+    const m = (e.memo||"").trim();
+    if(m){ const t = (e.detail||"").trim(); e.detail = t ? (m+" — "+t) : m; e.memo = ""; }
+  });
   return d.p[i];
 }
 function entriesHtml(d, i){
@@ -751,8 +763,7 @@ function entriesHtml(d, i){
       +   '<input list="'+dl+'" maxlength="20" value="'+escAttr(e.name||"")+'" placeholder="이름" oninput="setEntry('+i+',\''+e.id+'\',\'name\',this.value)" onblur="flushPersist()" id="ent-name-'+e.id+'">'
       +   '<button type="button" class="ent-del" data-act="delent" data-i="'+i+'" data-e="'+e.id+'" aria-label="삭제">✕</button>'
       + '</div>'
-      + '<input class="ent-memo" maxlength="40" value="'+escAttr(e.memo||"")+'" placeholder="간단 메모 (예: 정수기 데모)" oninput="setEntry('+i+',\''+e.id+'\',\'memo\',this.value)" onblur="flushPersist()">'
-      + '<textarea placeholder="상세 메모 (나눈 이야기, 반응, 다음 할 일 등)" oninput="setEntry('+i+',\''+e.id+'\',\'detail\',this.value)" onblur="flushPersist()">'+esc(e.detail||"")+'</textarea>'
+      + '<textarea placeholder="메모 (예: 정수기 데모, 반응 좋음)" oninput="setEntry('+i+',\''+e.id+'\',\'detail\',this.value)" onblur="flushPersist()">'+esc(e.detail||"")+'</textarea>'
       + '</div>';
   });
   h += '<button type="button" class="ent-add" data-act="addent" data-i="'+i+'">＋ 사람 추가</button>';

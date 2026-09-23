@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>10 CORE 체크</title>
-<title>10 CORE 체크</title>
 <style>
 :root{
   --bg:#f6f4ef;
@@ -136,12 +135,60 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
 }
 .toast.on{opacity:1}
+
+/* ---- 탭 내비게이션 ---- */
+.tabbar{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.tabbar::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:8px 15px;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;font-family:inherit;white-space:nowrap;
+}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ---- 소비자/파트너 공통: 필터칩, 단계뱃지 ---- */
+.chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:12px;color:var(--sub);cursor:pointer;font-family:inherit;white-space:nowrap}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.stagepill{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 9px}
+.stagepill.potential{color:var(--gold);background:transparent;border:1px dashed var(--gold)}
+.pmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px}
+.pmeta .next{font-size:11px;color:var(--sub)}
+.fab{position:fixed;right:20px;bottom:26px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:20;line-height:1}
+.fab-label{position:fixed;right:20px;border:none;border-radius:999px;padding:13px 18px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:20;font-family:inherit;white-space:nowrap}
+
+/* ---- 파트너(칸반) ---- */
+.kanban{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin:0 -16px;padding-left:16px;padding-right:16px}
+.kcol{flex:0 0 78%;max-width:280px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px}
+.kcol h3{font-size:13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;color:var(--sub);font-weight:600}
+.kcol h3 b{color:var(--ink);font-size:13px}
+.kcard{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
+.kcard.potential{border-style:dashed;border-color:var(--gold)}
+.kcard .kname{font-size:14px;font-weight:700}
+.kcard .kleg{font-size:11px;color:var(--sub);margin-top:2px}
+
+/* ---- 로드맵 ---- */
+.rm-wrap{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:10px}
+.rm-empty{padding:40px 20px;text-align:center;color:var(--sub);font-size:13px;line-height:1.7}
+.rm-node{cursor:pointer}
+.rm-node text{font-size:11px;font-weight:700}
+.rm-legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:11px;color:var(--sub);flex-wrap:wrap}
+.rm-legend span{display:inline-flex;align-items:center;gap:5px}
+.rm-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+.rm-dot.dash{background:transparent;border:1.5px dashed var(--gold)}
 </style>
 </head>
 <body>
 
 
 <div class="wrap">
+
+  <div class="tabbar" id="tabbar">
+    <button class="tab" data-tab="view-cal" onclick="openTab('view-cal')">✅ 체크</button>
+    <button class="tab" data-tab="view-consumers" onclick="openTab('view-consumers')">🛒 소비자</button>
+    <button class="tab" data-tab="view-sponsors" onclick="openTab('view-sponsors')">💼 파트너</button>
+    <button class="tab" data-tab="view-roadmap" onclick="openTab('view-roadmap')">🧭 로스맵</button>
+  </div>
 
   <div class="view on" id="view-cal">
     <header>
@@ -164,6 +211,38 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div><b id="st-full">0</b><span>100% 달성일</span></div>
       <div><b id="st-avg">0%</b><span>평균 달성률</span></div>
     </div>
+  </div>
+
+  <div class="view" id="view-consumers">
+    <div class="daytitle" style="margin-bottom:2px">소비자 노트</div>
+    <div class="pctbig" style="margin-bottom:12px">관계를 만들고 소비자를 늘려가는 기록</div>
+    <input id="con-search" placeholder="🔍 이름·메모·구매내역 검색 (예: 정수기)" oninput="renderConsumers()" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);font-family:inherit;margin-bottom:10px">
+    <div class="chips" id="con-chips"></div>
+    <div id="con-list"></div>
+    <button class="fab" onclick="openPersonEditor(null,'consumer')">＋</button>
+  </div>
+
+  <div class="view" id="view-sponsors">
+    <div class="daytitle" style="margin-bottom:2px">파트너</div>
+    <div class="pctbig" style="margin-bottom:12px">혼자 꾸는 꿈은 꿈이지만 함께 꾸는 꿈은 현실이 된다</div>
+    <input id="spo-search" placeholder="🔍 이름·메모·활동내역 검색" oninput="renderSponsors()" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);font-family:inherit;margin-bottom:10px">
+    <div class="kanban" id="spo-kanban"></div>
+    <button class="fab" onclick="openPersonEditor(null,'sponsor')">＋</button>
+  </div>
+
+  <div class="view" id="view-roadmap">
+    <div class="daytitle" style="margin-bottom:2px">로스맵</div>
+    <div class="pctbig" style="margin-bottom:12px">이해하지 못하면 소유할 수 없다 — 괴테</div>
+    <div class="rm-wrap" id="rm-wrap"></div>
+    <div class="rm-legend">
+      <span><i class="rm-dot"></i> 회원번호 있음</span>
+      <span><i class="rm-dot dash"></i> 회원번호 없음(잠재)</span>
+    </div>
+    <div class="btnrow" style="margin-top:10px">
+      <button class="btn ghost" onclick="saveRoadmapImage()">🖼 로스맵 이미지로 저장</button>
+    </div>
+    <button class="fab-label" style="bottom:84px;background:var(--accent)" onclick="openPersonEditor(null,'sponsor')">＋ 파트너</button>
+    <button class="fab-label" style="bottom:26px;background:var(--gold)" onclick="openPersonEditor(null,'consumer')">＋ 소비자</button>
   </div>
 
   <div class="view" id="view-day">
@@ -217,6 +296,22 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div class="note" id="sync-status" style="margin-top:8px">주소를 입력한 뒤 [저장하기]를 누르면 연동됩니다</div>
     </div>
 
+    <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 단계 편집</div>
+    <div class="set-item"><span style="width:44px">소비자</span><input id="set-constages" placeholder="데모,구매"></div>
+    <div class="set-item"><span style="width:44px">파트너</span><input id="set-spostages" placeholder="제품체험,사업설명,Tool,사업시작요령"></div>
+    <div class="note" style="text-align:left;margin:0 0 4px">쉼표(,)로 단계를 구분해서 적어주세요. 순서대로 파이프라인·리스트에 표시됩니다</div>
+
+    <div id="crm-sync-box">
+      <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 구글시트 연동 (선택)</div>
+      <div class="note" style="text-align:left;margin:0 0 8px">기존 일일기록 시트와는 별도의 구글시트·앱스스크립트를 새로 만들어 연결합니다. 설정 방법은 대화창에서 함께 안내해 드립니다</div>
+      <div class="set-item"><span>주소</span><input id="crm-sync-url" placeholder="CRM용 앱스 스크립트 웹앱 주소 (https://script.google.com/...)"></div>
+      <div class="btnrow" style="margin-top:8px">
+        <button class="btn ghost" onclick="testCrmSync()">연결 테스트</button>
+        <button class="btn ghost" onclick="pushAllPeople()">전체 명단 보내기</button>
+      </div>
+      <div class="note" id="crm-sync-status" style="margin-top:8px">주소를 입력한 뒤 [저장하기]를 누르면 연동됩니다</div>
+    </div>
+
     <div class="btnrow">
       <button class="btn primary" onclick="saveSettings()">저장하기</button>
     </div>
@@ -267,6 +362,49 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   </div>
 </div>
 
+<div class="modal" id="pmodal" onclick="if(event.target===this)closePersonEditor()">
+  <div class="modal-box">
+    <div class="daytitle" id="pm-title" style="font-size:17px;margin-bottom:10px">새 소비자</div>
+    <div style="padding:0">
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:0 0 5px">이름</label>
+      <input id="pm-name" maxlength="20" placeholder="이름" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">연락처</label>
+      <input id="pm-contact" maxlength="40" placeholder="전화번호·카톡ID 등 (선택)" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">단계</label>
+      <select id="pm-stage" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit"></select>
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">다음 액션일</label>
+      <input id="pm-next" type="date" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">메모</label>
+      <textarea id="pm-note" placeholder="상황, 다음에 할 일 등" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;resize:vertical;min-height:70px"></textarea>
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">회원번호 (있으면 로스맵에 실선으로 표시)</label>
+      <input id="pm-memberno" maxlength="20" placeholder="예: 12345678 (없으면 비워두세요)" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">연결 대상 (누구 라인인지 · 기본은 나)</label>
+      <select id="pm-parent" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit"></select>
+
+      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:16px 0 5px">활동 내역 (날짜별 기록 · 10코어 체크와 자동연동)</label>
+      <div id="pm-history" style="display:flex;flex-direction:column;gap:7px;max-height:180px;overflow:auto;margin-bottom:8px;padding-right:2px"></div>
+      <div style="display:flex;gap:6px">
+        <input id="pm-h-date" type="date" style="flex:0 0 128px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;color:var(--ink);font-family:inherit">
+        <input id="pm-h-content" placeholder="내용 (예: 정수기 구매 상담)" style="flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--ink);font-family:inherit">
+        <button type="button" onclick="addHistoryEntry()" style="flex:0 0 auto;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">추가</button>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="btn ghost" id="pm-del" onclick="deletePersonFromEditor()" style="display:none">삭제</button>
+      <button class="btn primary" onclick="savePersonFromEditor()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="rmpop" style="z-index:58" onclick="if(event.target===this)closeRmPopup()">
+  <div class="modal-box">
+    <div style="font-size:16px;font-weight:700;margin-bottom:2px" id="rmpop-body"></div>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="closeRmPopup()">닫기</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -304,7 +442,12 @@ window.addEventListener("unhandledrejection", function(ev){
   };
 })();
 
-let state = { items: DEFAULT_ITEMS.slice(), days: {}, itemsV: 2, streakMode: "any", streakGoal: 66, modeV: 2 };
+let state = {
+  items: DEFAULT_ITEMS.slice(), days: {}, itemsV: 2, streakMode: "any", streakGoal: 66, modeV: 2,
+  people: [], peopleV: 1,
+  consumerStages: ["데모","구매"],
+  sponsorStages: ["제품체험","사업설명","Tool","사업시작요령"]
+};
 let cur = new Date();
 let selKey = null;
 let autoSaved = {};
@@ -319,6 +462,9 @@ function load(){
       if(d && d.itemsV===2 && Array.isArray(d.items) && d.items.length===10) state.items = d.items;
       if(d && d.modeV===2 && (d.streakMode==="any" || d.streakMode==="full")) state.streakMode = d.streakMode;
       if(d && d.streakGoal>0) state.streakGoal = d.streakGoal;
+      if(d && Array.isArray(d.consumerStages) && d.consumerStages.length) state.consumerStages = d.consumerStages;
+      if(d && Array.isArray(d.sponsorStages) && d.sponsorStages.length) state.sponsorStages = d.sponsorStages;
+      if(d && Array.isArray(d.people)) state.people = d.people;
       if(d && d.days && typeof d.days==="object"){
         state.days = d.days;
         // v1 -> v2 마이그레이션
@@ -331,6 +477,7 @@ function load(){
       }
     }
   }catch(e){}
+  state.people = (state.people||[]).map(normalizePerson);
 }
 function persist(){
   state.ts = Date.now();
@@ -342,6 +489,7 @@ function persist(){
 // 화면 전환/입력창에서 손 뗄 때/앱을 나갈 때처럼 상태를 확정해야 하는 순간에 호출한다.
 function flushPersist(){
   if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; persist(); }
+  if(selKey) syncDayToPeople(selKey);
 }
 let cloudTimer;
 function cloudSave(){
@@ -477,12 +625,30 @@ function renderCal(){
 function moveMonth(n){ cur = new Date(cur.getFullYear(), cur.getMonth()+n, 1); renderCal(); }
 
 // ---------- 뷰 전환 ----------
+const MAIN_VIEWS = ["view-cal","view-consumers","view-sponsors","view-roadmap"];
 function show(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
   document.getElementById(id).classList.add("on");
   window.scrollTo(0,0);
+  const tb = document.getElementById("tabbar");
+  if(tb){
+    if(MAIN_VIEWS.indexOf(id)>=0){
+      tb.style.display = "flex";
+      tb.querySelectorAll(".tab").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-tab")===id); });
+    }else{
+      tb.style.display = "none";
+    }
+  }
 }
 function showCal(){ flushPersist(); renderCal(); show("view-cal"); }
+function openTab(id){
+  flushPersist();
+  if(id==="view-cal") renderCal();
+  else if(id==="view-consumers") renderConsumers();
+  else if(id==="view-sponsors") renderSponsors();
+  else if(id==="view-roadmap") renderRoadmap();
+  show(id);
+}
 
 // ---------- 데일리 ----------
 let openIdx = -1;
@@ -622,6 +788,13 @@ function openSettings(){
   document.getElementById("sync-url").value = sync.url || "";
   document.getElementById("sync-name").value = sync.name || "";
   document.getElementById("sync-auto").value = sync.auto ? "1" : "0";
+  document.getElementById("set-constages").value = state.consumerStages.join(",");
+  document.getElementById("set-spostages").value = state.sponsorStages.join(",");
+  document.getElementById("crm-sync-url").value = crmSync.url || "";
+  if(crmSyncReady()){
+    const cq = crmQueueGet().length;
+    setCrmStatus(cq ? ("전송 대기 중 "+cq+"건 · [전체 명단 보내기]를 눌러주세요") : "연동되어 있습니다 ✓");
+  }
   if(syncReady()){
     const q = queueGet().length;
     setSyncStatus(q ? ("전송 대기 중 "+q+"건 · [전체 기록 보내기]를 눌러주세요") : "연동되어 있습니다 ✓");
@@ -636,8 +809,19 @@ function saveSettings(){
   state.streakMode = document.getElementById("set-mode").value==="any" ? "any" : "full";
   const g = parseInt(document.getElementById("set-goal").value,10);
   if(g>0) state.streakGoal = g;
+  const csRaw = document.getElementById("set-constages").value.trim();
+  const ssRaw = document.getElementById("set-spostages").value.trim();
+  if(csRaw){ const arr = csRaw.split(",").map(function(s){ return s.trim(); }).filter(Boolean); if(arr.length) state.consumerStages = arr; }
+  if(ssRaw){ const arr = ssRaw.split(",").map(function(s){ return s.trim(); }).filter(Boolean); if(arr.length) state.sponsorStages = arr; }
+  state.people.forEach(function(p){
+    const st = stagesFor(p.kind);
+    if(p.stage > st.length-1) p.stage = st.length-1;
+    if(p.stage < 0) p.stage = 0;
+  });
   readSyncFields();
   saveSync();
+  readCrmField();
+  saveCrmSync();
   persist();
   toast("항목이 저장되었습니다");
   showCal();
@@ -782,6 +966,10 @@ function openCard(){
 async function shareCard(){
   const cv = drawCard();
   const fname = "10core_"+selKey.replace(/-/g,"")+".png";
+  await saveCanvasAsImage(cv, fname);
+}
+// 캔버스를 이미지 파일로 저장/공유하는 공통 로직 (인증 카드 · 로스맵 이미지에서 함께 사용)
+async function saveCanvasAsImage(cv, fname){
   // 1순위: 기기 공유 시트 (사진 저장 포함)
   try{
     const blob = await new Promise(res=>cv.toBlob(res,"image/png"));
@@ -818,6 +1006,460 @@ async function shareCard(){
   }catch(e){}
   // 4순위: 안내
   toast("이 환경에서는 저장이 제한됩니다. 이미지를 길게 눌러 저장해보세요");
+}
+
+// ---------- 소비자 노트 · 파트너 · 로스맵 ----------
+// 소비자(kind:"consumer")와 파트너(kind:"sponsor")를 하나의 people 배열로 관리한다.
+// 파트너만 parentId로 서로 연결되어 "라인" 트리를 이루고, 소비자는 늘 잎(leaf)으로
+// 나(root) 또는 특정 파트너 아래에 매달린다. memberNo(회원번호)가 있으면 로스맵에
+// 실선 원, 없으면 점선 원으로 표시한다. history는 날짜별 활동 기록(자동연동+수동)이다.
+function genId(){ return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function stagesFor(kind){ return kind==="sponsor" ? state.sponsorStages : state.consumerStages; }
+function normalizePerson(p){
+  p = p || {};
+  const kind = p.kind==="sponsor" ? "sponsor" : "consumer";
+  const stages = kind==="sponsor" ? state.sponsorStages : state.consumerStages;
+  let stage = parseInt(p.stage,10); if(isNaN(stage)) stage = 0;
+  stage = Math.max(0, Math.min(stages.length-1, stage));
+  const history = Array.isArray(p.history) ? p.history.map(function(h){
+    return { id: h.id || genId(), date: h.date || "", content: h.content || "", source: h.source || "수동" };
+  }) : [];
+  return {
+    id: p.id || genId(), kind: kind, name: p.name || "", contact: p.contact || "",
+    stage: stage, note: p.note || "", nextDate: p.nextDate || "",
+    parentId: p.parentId || null, memberNo: p.memberNo || "", history: history,
+    createdAt: p.createdAt || Date.now(), updatedAt: p.updatedAt || Date.now()
+  };
+}
+function personById(id){ return state.people.find(function(x){ return x.id===id; }); }
+function descendantIds(id){
+  const out = [];
+  function walk(pid){
+    state.people.forEach(function(p){ if(p.parentId===pid){ out.push(p.id); walk(p.id); } });
+  }
+  walk(id);
+  return out;
+}
+function wouldCycle(id, parentId){
+  if(!id || !parentId) return false;
+  let cur = personById(parentId), guard=0;
+  while(cur && guard<50){
+    if(cur.id===id) return true;
+    cur = cur.parentId ? personById(cur.parentId) : null;
+    guard++;
+  }
+  return false;
+}
+function legNameOf(p){
+  let cur = p, guard=0;
+  while(cur.parentId && guard<50){
+    const parent = personById(cur.parentId);
+    if(!parent) break;
+    cur = parent; guard++;
+  }
+  return cur.id===p.id ? "나 직속" : (cur.name||"(이름없음)")+" 라인";
+}
+
+// ---- 편집 모달 ----
+let pmEditing = null;
+let pmKind = "consumer";
+function openPersonEditor(id, kind){
+  flushPersist();
+  pmEditing = id;
+  const p = id ? personById(id) : null;
+  pmKind = p ? p.kind : kind;
+  document.getElementById("pm-title").textContent = (p? "수정: ":"새 ") + (pmKind==="sponsor"?"파트너":"소비자");
+  document.getElementById("pm-name").value = p ? p.name : "";
+  document.getElementById("pm-contact").value = p ? p.contact : "";
+  document.getElementById("pm-next").value = p ? p.nextDate : "";
+  document.getElementById("pm-note").value = p ? p.note : "";
+  document.getElementById("pm-memberno").value = p ? (p.memberNo||"") : "";
+  const stages = stagesFor(pmKind);
+  document.getElementById("pm-stage").innerHTML = stages.map(function(s,i){ return '<option value="'+i+'">'+esc(s)+'</option>'; }).join("");
+  document.getElementById("pm-stage").value = p ? Math.min(p.stage, stages.length-1) : 0;
+  const excluded = id ? [id].concat(descendantIds(id)) : [];
+  const sponsors = state.people.filter(function(x){ return x.kind==="sponsor" && excluded.indexOf(x.id)===-1; });
+  const parentSel = document.getElementById("pm-parent");
+  parentSel.innerHTML = '<option value="">나 (기본)</option>' + sponsors.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name||"(이름없음)")+'</option>'; }).join("");
+  parentSel.value = p && p.parentId ? p.parentId : "";
+  document.getElementById("pm-del").style.display = p ? "block" : "none";
+  document.getElementById("pm-h-date").value = todayKey();
+  document.getElementById("pm-h-content").value = "";
+  renderPersonHistory(p || { history: [] });
+  document.getElementById("pmodal").classList.add("on");
+}
+function closePersonEditor(){ document.getElementById("pmodal").classList.remove("on"); }
+function savePersonFromEditor(){
+  const name = document.getElementById("pm-name").value.trim();
+  if(!name){ toast("이름을 입력해 주세요"); return; }
+  const chosenParent = document.getElementById("pm-parent").value || null;
+  if(pmEditing && chosenParent && wouldCycle(pmEditing, chosenParent)){
+    toast("자기 자신의 하위 라인은 상위로 연결할 수 없습니다");
+    return;
+  }
+  let p = pmEditing ? personById(pmEditing) : null;
+  const isNew = !p;
+  if(isNew){ p = normalizePerson({ kind: pmKind }); state.people.push(p); }
+  p.name = name;
+  p.contact = document.getElementById("pm-contact").value.trim();
+  p.stage = parseInt(document.getElementById("pm-stage").value,10) || 0;
+  p.nextDate = document.getElementById("pm-next").value;
+  p.note = document.getElementById("pm-note").value.trim();
+  p.memberNo = document.getElementById("pm-memberno").value.trim();
+  p.parentId = chosenParent;
+  p.updatedAt = Date.now();
+  persist();
+  crmPush(p.id);
+  if(isNew){
+    pmEditing = p.id;
+    document.getElementById("pm-title").textContent = "수정: " + (pmKind==="sponsor"?"파트너":"소비자");
+    document.getElementById("pm-del").style.display = "block";
+    renderPersonHistory(p);
+    toast("추가되었습니다. 아래에서 활동 내역도 바로 남길 수 있어요");
+  }else{
+    closePersonEditor();
+    toast("저장되었습니다");
+  }
+  refreshCurrentPeopleView();
+}
+function deletePersonFromEditor(){
+  if(!pmEditing) return;
+  const id = pmEditing;
+  askConfirm("이 사람을 삭제할까요? 이 사람 아래로 연결된 라인이 있다면 나에게 바로 연결됩니다.", function(){
+    const target = personById(id);
+    const fallbackParent = target ? target.parentId : null;
+    state.people.forEach(function(x){ if(x.parentId===id) x.parentId = fallbackParent; });
+    state.people = state.people.filter(function(x){ return x.id!==id; });
+    persist();
+    closePersonEditor();
+    toast("삭제되었습니다");
+    refreshCurrentPeopleView();
+  });
+}
+function refreshCurrentPeopleView(){
+  if(document.getElementById("view-consumers").classList.contains("on")) renderConsumers();
+  if(document.getElementById("view-sponsors").classList.contains("on")) renderSponsors();
+  if(document.getElementById("view-roadmap").classList.contains("on")) renderRoadmap();
+}
+
+// ---- 활동 내역(히스토리) ----
+function todayKey(){ const t=new Date(); return keyOf(t.getFullYear(),t.getMonth(),t.getDate()); }
+function renderPersonHistory(p){
+  const items = (p.history||[]).slice().sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+  const el = document.getElementById("pm-history");
+  if(!items.length){ el.innerHTML = '<div style="font-size:12px;color:var(--sub)">아직 기록이 없습니다</div>'; return; }
+  el.innerHTML = items.map(function(h){
+    const auto = h.source && h.source!=="수동";
+    return '<div style="display:flex;align-items:flex-start;gap:8px;font-size:12.5px;border-bottom:1px dashed var(--line);padding-bottom:6px">'
+      + '<div style="flex:0 0 auto;color:var(--sub);white-space:nowrap">'+esc(h.date||"")+'</div>'
+      + '<div style="flex:1;color:var(--ink)">'+esc(h.content||"")+(auto? ' <span style="color:var(--sub);font-size:11px">· '+esc(h.source)+' 연동</span>':'')+'</div>'
+      + (auto? '' : '<button type="button" onclick="removeHistoryEntry(\''+h.id+'\')" style="flex:0 0 auto;background:none;border:none;color:var(--danger);font-size:13px;cursor:pointer;font-family:inherit">✕</button>')
+      + '</div>';
+  }).join("");
+}
+function addHistoryEntry(){
+  if(!pmEditing){ toast("먼저 [저장]을 눌러 사람을 등록한 뒤 내역을 추가할 수 있어요"); return; }
+  const p = personById(pmEditing);
+  if(!p) return;
+  const date = document.getElementById("pm-h-date").value || todayKey();
+  const content = document.getElementById("pm-h-content").value.trim();
+  if(!content){ toast("내용을 입력해 주세요"); return; }
+  p.history = p.history || [];
+  p.history.push({ id: genId(), date: date, content: content, source: "수동" });
+  p.updatedAt = Date.now();
+  document.getElementById("pm-h-content").value = "";
+  persist();
+  crmPush(p.id);
+  renderPersonHistory(p);
+  refreshCurrentPeopleView();
+}
+function removeHistoryEntry(hid){
+  if(!pmEditing) return;
+  const p = personById(pmEditing);
+  if(!p) return;
+  p.history = (p.history||[]).filter(function(h){ return h.id!==hid; });
+  p.updatedAt = Date.now();
+  persist();
+  crmPush(p.id);
+  renderPersonHistory(p);
+  refreshCurrentPeopleView();
+}
+
+// ---- 10코어 체크와 자동 연동 ----
+// 5=소비자 관리 → 소비자 노트, 6=STP·8=신뢰쌓기 → 파트너 로 자동 등록/누적된다.
+// (state.items의 항목 이름을 바꿔도 슬롯 번호는 고정이라 계속 연동된다)
+const LINK_ITEMS = {
+  5: { kind:"consumer", source:"소비자관리" },
+  6: { kind:"sponsor", source:"STP" },
+  8: { kind:"sponsor", source:"신뢰쌓기" }
+};
+function syncDayToPeople(key){
+  if(!key || !state.days[key]) return;
+  const d = state.days[key];
+  let changed = false;
+  const touched = [];
+  Object.keys(LINK_ITEMS).forEach(function(idxStr){
+    const idx = parseInt(idxStr,10);
+    const cfg = LINK_ITEMS[idx];
+    const name = (d.n[idx]||"").trim();
+    const content = (d.t[idx]||"").trim();
+    if(!name) return;
+    let p = state.people.find(function(x){ return x.kind===cfg.kind && (x.name||"").trim().toLowerCase()===name.toLowerCase(); });
+    if(!p){ p = normalizePerson({ kind:cfg.kind, name:name }); state.people.push(p); changed = true; }
+    let h = (p.history||[]).find(function(x){ return x.date===key && x.source===cfg.source; });
+    if(content){
+      if(h){ if(h.content!==content){ h.content = content; changed = true; } }
+      else{ p.history.push({ id: genId(), date:key, content:content, source:cfg.source }); changed = true; }
+      p.updatedAt = Date.now();
+      touched.push(p.id);
+    }else if(h){
+      p.history = p.history.filter(function(x){ return x!==h; });
+      changed = true;
+      touched.push(p.id);
+    }
+  });
+  if(changed){
+    persist();
+    touched.forEach(crmPush);
+    refreshCurrentPeopleView();
+  }
+}
+
+// ---- 검색·최근내역 공통 헬퍼 ----
+function latestHistory(p){
+  const items = (p.history||[]).slice().sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+  return items[0] || null;
+}
+function searchHit(p, q){
+  if(!q) return null;
+  const items = (p.history||[]).slice().sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+  return items.find(function(h){ return (h.content||"").toLowerCase().indexOf(q)>=0; }) || null;
+}
+function matchesQuery(p, q){
+  if(!q) return true;
+  if((p.name||"").toLowerCase().indexOf(q)>=0) return true;
+  if((p.note||"").toLowerCase().indexOf(q)>=0) return true;
+  if((p.contact||"").toLowerCase().indexOf(q)>=0) return true;
+  return !!searchHit(p, q);
+}
+
+// ---- 소비자 노트 ----
+let conFilter = "all";
+function setConFilter(v){ conFilter = v; renderConsumers(); }
+function personRowHtml(p, q){
+  const stages = stagesFor(p.kind);
+  const stageName = stages[Math.min(p.stage, stages.length-1)] || "";
+  const last = latestHistory(p);
+  const hit = q ? searchHit(p, q) : null;
+  return '<div class="item" onclick="openPersonEditor(\''+p.id+'\',\''+p.kind+'\')">'
+    + '<div class="irow">'
+    +   '<div class="imain">'
+    +     '<div class="iname">'+esc(p.name||"(이름없음)")+'</div>'
+    +     '<div class="pmeta">'
+    +       '<span class="stagepill'+(!p.memberNo?" potential":"")+'">'+esc(stageName)+'</span>'
+    +       (last? '<span class="next">최근 '+esc(last.date)+'</span>':'')
+    +       (p.nextDate? '<span class="next">다음 액션 '+esc(p.nextDate)+'</span>':'')
+    +       (p.memberNo? '<span class="next">회원 '+esc(p.memberNo)+'</span>':'')
+    +     '</div>'
+    +     (p.note? '<div class="inote">'+esc(p.note)+'</div>':'')
+    +     (hit? '<div class="inote">🔍 '+esc(hit.date)+' · '+esc(hit.content)+'</div>':'')
+    +   '</div>'
+    +   '<div class="iarrow">›</div>'
+    + '</div>'
+    + '</div>';
+}
+function renderConsumers(){
+  const stages = state.consumerStages;
+  const chips = ['<button class="chip'+(conFilter==="all"?" on":"")+'" onclick="setConFilter(\'all\')">전체</button>']
+    .concat(stages.map(function(s,i){ return '<button class="chip'+(conFilter===String(i)?" on":"")+'" onclick="setConFilter(\''+i+'\')">'+esc(s)+'</button>'; }));
+  document.getElementById("con-chips").innerHTML = chips.join("");
+  const q = (document.getElementById("con-search").value||"").trim().toLowerCase();
+  let list = state.people.filter(function(p){ return p.kind==="consumer"; });
+  if(conFilter!=="all") list = list.filter(function(p){ return String(p.stage)===conFilter; });
+  if(q) list = list.filter(function(p){ return matchesQuery(p,q); });
+  list.sort(function(a,b){ return (a.stage-b.stage) || (b.updatedAt-a.updatedAt); });
+  const el = document.getElementById("con-list");
+  if(!list.length){
+    el.innerHTML = '<div class="rm-empty">'+(q? '검색 결과가 없습니다' : '아직 등록된 소비자가 없습니다<br>오른쪽 아래 ＋ 버튼으로 추가해 보세요')+'</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(p){ return personRowHtml(p,q); }).join("");
+}
+
+// ---- 파트너(칸반) ----
+function renderSponsors(){
+  const stages = state.sponsorStages;
+  const q = (document.getElementById("spo-search").value||"").trim().toLowerCase();
+  let list = state.people.filter(function(p){ return p.kind==="sponsor"; });
+  if(q) list = list.filter(function(p){ return matchesQuery(p,q); });
+  const cols = stages.map(function(name,i){
+    const items = list.filter(function(p){ return p.stage===i; });
+    const cards = items.map(function(p){
+      const leg = legNameOf(p);
+      const hit = q ? searchHit(p,q) : null;
+      return '<div class="kcard'+(!p.memberNo?" potential":"")+'" onclick="openPersonEditor(\''+p.id+'\',\'sponsor\')">'
+        + '<div class="kname">'+esc(p.name||"(이름없음)")+'</div>'
+        + '<div class="kleg">'+esc(leg)+'</div>'
+        + (p.memberNo? '<div class="kleg">회원 '+esc(p.memberNo)+'</div>':'')
+        + (p.nextDate? '<div class="kleg">다음 액션 '+esc(p.nextDate)+'</div>':'')
+        + (hit? '<div class="kleg">🔍 '+esc(hit.date)+' · '+esc(hit.content)+'</div>':'')
+        + '</div>';
+    }).join("") || '<div style="font-size:12px;color:var(--sub);padding:10px 2px">비어있음</div>';
+    return '<div class="kcol"><h3><b>'+esc(name)+'</b><span>'+items.length+'명</span></h3>'+cards+'</div>';
+  });
+  document.getElementById("spo-kanban").innerHTML = cols.join("");
+}
+
+// ---- 로드맵(마인드맵) ----
+function buildPeopleTree(){
+  const byParent = {};
+  state.people.forEach(function(p){
+    const key = p.parentId || "__root__";
+    if(!byParent[key]) byParent[key] = [];
+    byParent[key].push(p);
+  });
+  Object.keys(byParent).forEach(function(k){
+    byParent[k].sort(function(a,b){
+      if(a.kind!==b.kind) return a.kind==="sponsor" ? -1 : 1;
+      return (a.createdAt||0)-(b.createdAt||0);
+    });
+  });
+  return byParent;
+}
+function countLeaves(node, byParent){
+  const kids = byParent[node.id] || [];
+  if(!kids.length) return 1;
+  let sum=0;
+  kids.forEach(function(k){ sum += countLeaves(k, byParent); });
+  return sum;
+}
+function layoutTree(byParent){
+  const roots = byParent["__root__"] || [];
+  if(!roots.length) return [];
+  const totalLeaves = roots.reduce(function(s,r){ return s+countLeaves(r,byParent); }, 0) || 1;
+  const RSTEP = 92;
+  const nodes = [];
+  function place(node, angleStart, angleSpan, depth, parentXY){
+    const angle = angleStart + angleSpan/2;
+    const r = depth * RSTEP;
+    const rad = angle * Math.PI/180;
+    const x = r*Math.cos(rad), y = r*Math.sin(rad);
+    nodes.push({ person:node, x:x, y:y, depth:depth, px:parentXY.x, py:parentXY.y });
+    const kids = byParent[node.id] || [];
+    if(kids.length && depth<40){
+      const leavesTotal = kids.reduce(function(s,k){ return s+countLeaves(k,byParent); }, 0) || 1;
+      let cursor = angleStart;
+      kids.forEach(function(k){
+        const leaves = countLeaves(k, byParent);
+        const span = angleSpan * (leaves/leavesTotal);
+        place(k, cursor, span, depth+1, {x:x,y:y});
+        cursor += span;
+      });
+    }
+  }
+  let cursor = 0;
+  roots.forEach(function(r){
+    const leaves = countLeaves(r, byParent);
+    const span = 360 * (leaves/totalLeaves);
+    place(r, cursor, span, 1, {x:0,y:0});
+    cursor += span;
+  });
+  return nodes;
+}
+function renderRoadmap(){
+  const byParent = buildPeopleTree();
+  const nodes = layoutTree(byParent);
+  const wrap = document.getElementById("rm-wrap");
+  if(!nodes.length){
+    wrap.innerHTML = '<div class="rm-empty">아직 등록된 사람이 없습니다<br>아래 ＋ 버튼으로 소비자·파트너를 추가하면<br>여기에 라인이 뻗어나갑니다</div>';
+    return;
+  }
+  let maxR = 0;
+  nodes.forEach(function(n){ const r = Math.sqrt(n.x*n.x+n.y*n.y); if(r>maxR) maxR=r; });
+  const half = maxR + 70;
+  const size = half*2;
+  let svg = '<svg viewBox="'+(-half)+' '+(-half)+' '+size+' '+size+'" width="'+Math.max(size,300)+'" height="'+Math.max(size,300)+'" style="display:block;margin:0 auto">';
+  nodes.forEach(function(n){
+    const dashed = !n.person.memberNo;
+    svg += '<line x1="'+n.px+'" y1="'+n.py+'" x2="'+n.x+'" y2="'+n.y+'" stroke="'+(dashed? "var(--gold)":"var(--line)")+'" stroke-width="2" stroke-dasharray="'+(dashed? "4,4":"0")+'" />';
+  });
+  svg += '<g class="rm-node" onclick="openRmCenter()"><circle cx="0" cy="0" r="27" fill="var(--ink)"/><text x="0" y="5" text-anchor="middle" fill="var(--bg)">나</text></g>';
+  nodes.forEach(function(n){
+    const p = n.person;
+    const fill = p.kind==="sponsor" ? "var(--accent)" : "var(--gold)";
+    const dashed = !p.memberNo;
+    svg += '<g class="rm-node" onclick="openPersonEditor(\''+p.id+'\',\''+p.kind+'\')">'
+      + '<circle cx="'+n.x+'" cy="'+n.y+'" r="21" fill="'+(dashed? "var(--card)":fill)+'" stroke="'+fill+'" stroke-width="2.5" stroke-dasharray="'+(dashed?"4,3":"0")+'"/>'
+      + '<text x="'+n.x+'" y="'+(p.memberNo? n.y-2 : n.y+4)+'" text-anchor="middle" style="font-size:10px;font-weight:800" fill="'+(dashed? "var(--ink)":"#fff")+'">'+esc((p.name||"?").slice(0,4))+'</text>'
+      + (p.memberNo? '<text x="'+n.x+'" y="'+(n.y+9)+'" text-anchor="middle" style="font-size:8px" fill="'+(dashed? "var(--sub)":"rgba(255,255,255,.85)")+'">'+esc(p.memberNo.slice(0,8))+'</text>' : '')
+      + '</g>';
+  });
+  svg += '</svg>';
+  wrap.innerHTML = svg;
+}
+function openRmCenter(){
+  const withMember = state.people.filter(function(p){ return !!p.memberNo; });
+  const consumers = state.people.filter(function(p){ return p.kind==="consumer"; });
+  const partners = state.people.filter(function(p){ return p.kind==="sponsor"; });
+  const lines = (buildPeopleTree()["__root__"]||[]).filter(function(p){ return p.kind==="sponsor"; }).length;
+  document.getElementById("rmpop-body").innerHTML = '<div>나</div>'
+    + '<div style="font-size:12px;color:var(--sub);font-weight:400;margin-top:4px">직속 라인 '+lines+'개 · 파트너 '+partners.length+'명(회원번호 '+withMember.length+'명) · 소비자 '+consumers.length+'명</div>';
+  document.getElementById("rmpop").classList.add("on");
+}
+function closeRmPopup(){ document.getElementById("rmpop").classList.remove("on"); }
+
+// ---- 로스맵 이미지로 저장 ----
+// 화면의 var(--xxx) 색상은 독립된 이미지에서는 해석이 안 되므로, 저장 시점에
+// 실제 계산된 색상값으로 치환한 뒤 캔버스에 그려서 내보낸다(라이트/다크 모드 모두 대응).
+function resolveSvgColors(markup){
+  const cs = getComputedStyle(document.documentElement);
+  return markup.replace(/var\((--[a-z-]+)\)/g, function(m, name){
+    const v = cs.getPropertyValue(name).trim();
+    return v || "#000000";
+  });
+}
+async function saveRoadmapImage(){
+  const svgEl = document.querySelector("#rm-wrap svg");
+  if(!svgEl){ toast("저장할 로스맵이 없습니다. 먼저 소비자·파트너를 추가해 주세요"); return; }
+  const cs = getComputedStyle(document.documentElement);
+  const bg = cs.getPropertyValue("--bg").trim() || "#ffffff";
+  const ink = cs.getPropertyValue("--ink").trim() || "#111111";
+  const gold = cs.getPropertyValue("--gold").trim() || "#c9a45c";
+  const vb = (svgEl.getAttribute("viewBox")||"0 0 300 300").split(/\s+/).map(Number);
+  const W = vb[2] || 300, H = vb[3] || 300;
+  const pad = 40, headerH = 92, footerH = 40;
+
+  let markup = svgEl.outerHTML;
+  if(markup.indexOf("xmlns=")===-1) markup = markup.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+  markup = resolveSvgColors(markup);
+  const svgUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(markup);
+
+  const img = new Image();
+  img.onload = async function(){
+    try{
+      const scale = 2;
+      const cv = document.createElement("canvas");
+      cv.width = (W + pad*2) * scale;
+      cv.height = (H + pad*2 + headerH + footerH) * scale;
+      const x = cv.getContext("2d");
+      x.scale(scale, scale);
+      x.fillStyle = bg;
+      x.fillRect(0, 0, W+pad*2, H+pad*2+headerH+footerH);
+      x.fillStyle = ink; x.font = "800 26px sans-serif"; x.textAlign = "left";
+      x.fillText("로스맵 · 10 CORE", 24, 40);
+      x.fillStyle = gold; x.font = "400 14px sans-serif";
+      x.fillText("이해하지 못하면 소유할 수 없다 — 괴테", 24, 62);
+      x.drawImage(img, pad, headerH, W, H);
+      x.fillStyle = cs.getPropertyValue("--sub").trim() || "#888"; x.font = "400 12px sans-serif"; x.textAlign="center";
+      x.fillText("● 회원번호 있음   ○ 회원번호 없음(잠재)  ·  "+new Date().toLocaleDateString("ko-KR"), (W+pad*2)/2, H+pad*2+headerH+26);
+      const fname = "10core_로스맵_"+todayKey().replace(/-/g,"")+".png";
+      await saveCanvasAsImage(cv, fname);
+    }catch(e){
+      toast("이미지 생성 중 문제가 발생했습니다");
+    }
+  };
+  img.onerror = function(){ toast("이미지 생성에 실패했습니다"); };
+  img.src = svgUrl;
 }
 
 // ---------- 구글 시트 연동 ----------
@@ -965,6 +1607,104 @@ function readSyncFields(){
   if(u) sync.url  = u.value.trim();
   if(n) sync.name = n.value.trim();
   if(a) sync.auto = a.value === "1";
+}
+
+// ---------- 소비자·파트너 구글시트 연동(CRM) ----------
+// 일일기록 구글시트 연동과는 완전히 별도의 웹앱 주소를 쓴다. 기존 시트/스크립트를
+// 건드리지 않기 위해서다. 저장 형식은 sync와 동일하게 이 기기 로컬에만 둔다.
+let crmSync = { url:"" };
+function loadCrmSync(){
+  try{
+    const raw = localStorage.getItem("tencore-crm-sync");
+    if(raw){ const d = JSON.parse(raw); if(d && typeof d==="object") crmSync.url = typeof d.url==="string" ? d.url : ""; }
+  }catch(e){}
+}
+function saveCrmSync(){ try{ localStorage.setItem("tencore-crm-sync", JSON.stringify(crmSync)); }catch(e){} }
+function crmSyncReady(){ return !!(crmSync.url && /^https?:\/\//.test(crmSync.url)); }
+function readCrmField(){ const u = document.getElementById("crm-sync-url"); if(u) crmSync.url = u.value.trim(); }
+
+function crmQueueGet(){ try{ const a=JSON.parse(localStorage.getItem("tencore-crm-q")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function crmQueueSet(a){ try{ localStorage.setItem("tencore-crm-q", JSON.stringify(a.slice(-400))); }catch(e){} }
+function crmQueueAdd(id){ if(!id) return; const a=crmQueueGet(); if(a.indexOf(id)===-1){ a.push(id); crmQueueSet(a); } }
+
+function personPayload(p){
+  const stages = stagesFor(p.kind);
+  const parent = p.parentId ? personById(p.parentId) : null;
+  const hist = (p.history||[]).slice().sort(function(a,b){ return (a.date||"").localeCompare(b.date||""); })
+    .map(function(h){ return h.date+" "+h.content; }).join(" / ");
+  return {
+    id: p.id, owner: sync.name || "", kind: (p.kind==="sponsor"?"파트너":"소비자"),
+    name: p.name||"", contact: p.contact||"", memberNo: p.memberNo||"",
+    stage: stages[Math.min(p.stage, stages.length-1)] || "",
+    leg: legNameOf(p), parent: parent ? parent.name : "나",
+    note: p.note||"", nextDate: p.nextDate||"", history: hist, updatedAt: p.updatedAt||0
+  };
+}
+async function postCrm(payload){
+  const res = await fetch(crmSync.url, { method:"POST", body: JSON.stringify(payload), redirect:"follow" });
+  const txt = await res.text();
+  let j=null; try{ j=JSON.parse(txt); }catch(e){}
+  if(j && j.ok) return j;
+  throw new Error((j&&j.error)?j.error:"시트가 올바른 응답을 주지 않았습니다");
+}
+function setCrmStatus(t){ const el=document.getElementById("crm-sync-status"); if(el) el.textContent=t; }
+let crmTimer, crmBusy=false;
+function crmPush(id){
+  if(!crmSyncReady() || !id) return;
+  crmQueueAdd(id);
+  clearTimeout(crmTimer);
+  crmTimer = setTimeout(flushCrmQueue, 2500);
+}
+async function flushCrmQueue(quiet){
+  if(!crmSyncReady() || crmBusy) return;
+  const ids = crmQueueGet();
+  if(!ids.length) return;
+  crmBusy = true;
+  try{
+    const rows = ids.map(personById).filter(Boolean).map(personPayload);
+    if(rows.length){ await postCrm({ type:"people", rows: rows }); }
+    crmQueueSet([]);
+    setCrmStatus("시트에 저장되었습니다 ✓ ("+new Date().toLocaleTimeString("ko-KR")+")");
+  }catch(e){
+    setCrmStatus("전송 대기 중 "+ids.length+"건 · "+(e&&e.message?e.message:"연결 실패"));
+    if(!quiet) toast("CRM 시트 전송에 실패해 대기열에 보관했습니다");
+  }finally{ crmBusy=false; }
+}
+async function testCrmSync(){
+  readCrmField();
+  if(!crmSyncReady()){ toast("먼저 https 로 시작하는 웹앱 주소를 넣어주세요"); return; }
+  saveCrmSync();
+  setCrmStatus("연결을 확인하는 중...");
+  try{
+    await postCrm({ ping:true, type:"people" });
+    setCrmStatus("연결 성공 ✓ 시트에 [인물] 탭이 만들어졌습니다");
+    toast("연결에 성공했습니다 ✓");
+  }catch(e){
+    setCrmStatus("연결 실패 · "+(e&&e.message?e.message:"주소를 다시 확인해 주세요"));
+    toast("연결에 실패했습니다. 배포 설정을 확인해 주세요");
+  }
+}
+async function pushAllPeople(){
+  readCrmField();
+  if(!crmSyncReady()){ toast("먼저 웹앱 주소를 넣어주세요"); return; }
+  saveCrmSync();
+  const all = state.people.slice();
+  if(!all.length){ toast("보낼 명단이 없습니다"); return; }
+  crmBusy = true;
+  setCrmStatus("전체 "+all.length+"명을 보내는 중...");
+  try{
+    for(let i=0;i<all.length;i+=60){
+      const part = all.slice(i,i+60).map(personPayload);
+      await postCrm({ type:"people", rows: part });
+      setCrmStatus("보내는 중... "+Math.min(i+60,all.length)+" / "+all.length);
+    }
+    crmQueueSet([]);
+    setCrmStatus("전체 "+all.length+"명을 보냈습니다 ✓");
+    toast("전체 명단을 시트에 보냈습니다 ✓");
+  }catch(e){
+    setCrmStatus("전송 중 문제가 발생했습니다 · "+(e&&e.message?e.message:""));
+    toast("전송 중 문제가 발생했습니다");
+  }finally{ crmBusy=false; }
 }
 
 // ---------- 문의 보내기 ----------
@@ -1212,6 +1952,7 @@ function toast(msg){
 // ---------- 시작 ----------
 load();
 loadSync();
+loadCrmSync();
 renderCal();
 // Claude 아티팩트 안에서는 외부 주소로의 전송이 막혀 있어 연동 칸을 숨긴다.
 // (깃허브 등 일반 웹페이지로 열었을 때만 구글 시트 연동을 쓸 수 있다)
@@ -1219,6 +1960,8 @@ renderCal();
 if(window.claude && window.claude.use){
   const sb = document.getElementById("sync-box");
   if(sb) sb.style.display = "none";
+  const cb = document.getElementById("crm-sync-box");
+  if(cb) cb.style.display = "none";
   const ba = document.getElementById("btn-ask");
   if(ba) ba.style.display = "none";
 }else{
@@ -1226,7 +1969,7 @@ if(window.claude && window.claude.use){
     const ba = document.getElementById("btn-ask");
     if(ba) ba.style.display = "none";
   }
-  setTimeout(function(){ flushQueue(true); }, 1500);
+  setTimeout(function(){ flushQueue(true); flushCrmQueue(true); }, 1500);
 }
 (async ()=>{
   try{

@@ -195,6 +195,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div class="logo">10 <em>CORE</em></div>
       <div class="hbtns">
         <button class="gear" id="btn-ask" onclick="openAsk()">문의하기</button>
+        <button class="gear" onclick="openConnect()">연동 · 백업</button>
         <button class="gear" onclick="openSettings()">항목 설정</button>
       </div>
     </header>
@@ -268,7 +269,24 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <option value="full">10개 모두 체크한 날만 인정 (100%)</option>
     </select></div>
     <div class="set-item"><span>목표</span><input id="set-goal" type="number" min="1" max="999" inputmode="numeric"></div>
-    <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">데이터 백업 · 복원</div>
+
+    <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 단계 편집</div>
+    <div class="set-item"><span style="width:44px">소비자</span><input id="set-constages" placeholder="데모,구매"></div>
+    <div class="set-item"><span style="width:44px">파트너</span><input id="set-spostages" placeholder="제품체험,사업설명,Tool,사업시작요령"></div>
+    <div class="note" style="text-align:left;margin:0 0 4px">쉼표(,)로 단계를 구분해서 적어주세요. 순서대로 파이프라인·리스트에 표시됩니다</div>
+
+    <div class="btnrow">
+      <button class="btn primary" onclick="saveSettings()">저장하기</button>
+    </div>
+    <div class="note" style="margin-top:4px">구글시트 연동과 데이터 백업·복원은 <a onclick="openConnect()" style="text-decoration:underline;cursor:pointer;color:var(--accent)">연동 · 백업</a> 화면에서 관리합니다</div>
+  </div>
+
+  <div class="view" id="view-connect">
+    <button class="back" onclick="showCal()">‹ 달력으로</button>
+    <div class="daytitle">연동 · 백업</div>
+    <div class="pctbig">구글시트 연동과 데이터 백업·복원을 관리합니다</div>
+
+    <div class="daytitle" style="font-size:16px;margin-top:0;margin-bottom:8px">데이터 백업 · 복원</div>
     <textarea id="bk" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;color:var(--ink);font-family:monospace;min-height:80px;resize:vertical" placeholder="[백업 코드 만들기]를 누르면 전체 기록이 코드로 만들어집니다.
 다른 기기에서 복원하려면 그 코드를 여기에 붙여넣고 [복원하기]를 누르세요."></textarea>
     <div class="btnrow" style="margin-top:8px">
@@ -296,20 +314,18 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div class="note" id="sync-status" style="margin-top:8px">주소를 입력한 뒤 [저장하기]를 누르면 연동됩니다</div>
     </div>
 
-    <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 단계 편집</div>
-    <div class="set-item"><span style="width:44px">소비자</span><input id="set-constages" placeholder="데모,구매"></div>
-    <div class="set-item"><span style="width:44px">파트너</span><input id="set-spostages" placeholder="제품체험,사업설명,Tool,사업시작요령"></div>
-    <div class="note" style="text-align:left;margin:0 0 4px">쉼표(,)로 단계를 구분해서 적어주세요. 순서대로 파이프라인·리스트에 표시됩니다</div>
-
     <div id="crm-sync-box">
       <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 구글시트 연동 (선택)</div>
-      <div class="note" style="text-align:left;margin:0 0 8px">기존 일일기록 시트와는 별도의 구글시트·앱스스크립트를 새로 만들어 연결합니다. 설정 방법은 대화창에서 함께 안내해 드립니다</div>
-      <div class="set-item"><span>주소</span><input id="crm-sync-url" placeholder="CRM용 앱스 스크립트 웹앱 주소 (https://script.google.com/...)"></div>
+      <div class="note" style="text-align:left;margin:0 0 8px">기본적으로 위 일일기록 주소와 같은 시트를 씁니다. 따로 다른 시트를 쓰고 싶을 때만 체크를 해제하고 주소를 입력하세요</div>
+      <label style="display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:14px;color:var(--ink)">
+        <input type="checkbox" id="crm-sync-same" checked onchange="toggleCrmSame()"> 일일기록과 같은 주소 사용
+      </label>
+      <div class="set-item" id="crm-sync-url-row" style="display:none"><span>주소</span><input id="crm-sync-url" placeholder="CRM용 앱스 스크립트 웹앱 주소 (https://script.google.com/...)"></div>
       <div class="btnrow" style="margin-top:8px">
         <button class="btn ghost" onclick="testCrmSync()">연결 테스트</button>
         <button class="btn ghost" onclick="pushAllPeople()">전체 명단 보내기</button>
       </div>
-      <div class="note" id="crm-sync-status" style="margin-top:8px">주소를 입력한 뒤 [저장하기]를 누르면 연동됩니다</div>
+      <div class="note" id="crm-sync-status" style="margin-top:8px">위 일일기록 주소를 저장하면 자동으로 함께 연동됩니다</div>
     </div>
 
     <div class="btnrow">
@@ -785,12 +801,18 @@ function openSettings(){
   document.getElementById("set-list").innerHTML = html;
   document.getElementById("set-mode").value = state.streakMode||"full";
   document.getElementById("set-goal").value = state.streakGoal||66;
+  document.getElementById("set-constages").value = state.consumerStages.join(",");
+  document.getElementById("set-spostages").value = state.sponsorStages.join(",");
+  show("view-set");
+}
+// ---------- 연동 · 백업 ----------
+function openConnect(){
   document.getElementById("sync-url").value = sync.url || "";
   document.getElementById("sync-name").value = sync.name || "";
   document.getElementById("sync-auto").value = sync.auto ? "1" : "0";
-  document.getElementById("set-constages").value = state.consumerStages.join(",");
-  document.getElementById("set-spostages").value = state.sponsorStages.join(",");
   document.getElementById("crm-sync-url").value = crmSync.url || "";
+  document.getElementById("crm-sync-same").checked = crmSync.same !== false;
+  toggleCrmSame();
   if(crmSyncReady()){
     const cq = crmQueueGet().length;
     setCrmStatus(cq ? ("전송 대기 중 "+cq+"건 · [전체 명단 보내기]를 눌러주세요") : "연동되어 있습니다 ✓");
@@ -799,7 +821,7 @@ function openSettings(){
     const q = queueGet().length;
     setSyncStatus(q ? ("전송 대기 중 "+q+"건 · [전체 기록 보내기]를 눌러주세요") : "연동되어 있습니다 ✓");
   }
-  show("view-set");
+  show("view-connect");
 }
 function saveSettings(){
   for(let i=0;i<10;i++){
@@ -1612,16 +1634,34 @@ function readSyncFields(){
 // ---------- 소비자·파트너 구글시트 연동(CRM) ----------
 // 일일기록 구글시트 연동과는 완전히 별도의 웹앱 주소를 쓴다. 기존 시트/스크립트를
 // 건드리지 않기 위해서다. 저장 형식은 sync와 동일하게 이 기기 로컬에만 둔다.
-let crmSync = { url:"" };
+let crmSync = { url:"", same:true };
 function loadCrmSync(){
   try{
     const raw = localStorage.getItem("tencore-crm-sync");
-    if(raw){ const d = JSON.parse(raw); if(d && typeof d==="object") crmSync.url = typeof d.url==="string" ? d.url : ""; }
+    if(raw){
+      const d = JSON.parse(raw);
+      if(d && typeof d==="object"){
+        crmSync.url  = typeof d.url==="string" ? d.url : "";
+        crmSync.same = d.same !== false; // 기본값: 일일기록과 같은 주소 사용
+      }
+    }
   }catch(e){}
 }
 function saveCrmSync(){ try{ localStorage.setItem("tencore-crm-sync", JSON.stringify(crmSync)); }catch(e){} }
-function crmSyncReady(){ return !!(crmSync.url && /^https?:\/\//.test(crmSync.url)); }
-function readCrmField(){ const u = document.getElementById("crm-sync-url"); if(u) crmSync.url = u.value.trim(); }
+// "같은 주소 사용"이 체크돼 있으면 일일기록 주소를 그대로 쓰고, 해제했을 때만 별도 주소를 쓴다.
+function crmEffectiveUrl(){ return crmSync.same ? sync.url : crmSync.url; }
+function crmSyncReady(){ const u = crmEffectiveUrl(); return !!(u && /^https?:\/\//.test(u)); }
+function readCrmField(){
+  const chk = document.getElementById("crm-sync-same");
+  const u = document.getElementById("crm-sync-url");
+  if(chk) crmSync.same = chk.checked;
+  if(u && !crmSync.same) crmSync.url = u.value.trim();
+}
+function toggleCrmSame(){
+  const chk = document.getElementById("crm-sync-same");
+  const row = document.getElementById("crm-sync-url-row");
+  if(row) row.style.display = (chk && chk.checked) ? "none" : "";
+}
 
 function crmQueueGet(){ try{ const a=JSON.parse(localStorage.getItem("tencore-crm-q")||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function crmQueueSet(a){ try{ localStorage.setItem("tencore-crm-q", JSON.stringify(a.slice(-400))); }catch(e){} }
@@ -1641,7 +1681,7 @@ function personPayload(p){
   };
 }
 async function postCrm(payload){
-  const res = await fetch(crmSync.url, { method:"POST", body: JSON.stringify(payload), redirect:"follow" });
+  const res = await fetch(crmEffectiveUrl(), { method:"POST", body: JSON.stringify(payload), redirect:"follow" });
   const txt = await res.text();
   let j=null; try{ j=JSON.parse(txt); }catch(e){}
   if(j && j.ok) return j;

@@ -107,6 +107,16 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;resize:vertical;min-height:70px;
 }
 .idetail input:focus,.idetail textarea:focus{outline:none;border-color:var(--accent)}
+.ent-head{display:flex;align-items:center;justify-content:space-between;margin:12px 0 6px;font-size:12px;color:var(--sub);font-weight:600}
+.ent{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:var(--bg)}
+.ent-top{display:flex;gap:6px;align-items:center}
+.ent-top input{flex:1;min-width:0;font-weight:700}
+.ent input,.ent textarea{background:var(--card)}
+.ent .ent-memo{margin-top:6px}
+.ent textarea{margin-top:6px;min-height:54px}
+.ent-del{flex:0 0 auto;width:34px;height:38px;border:none;background:none;color:var(--danger);font-size:16px;cursor:pointer;font-family:inherit}
+.ent-add{width:100%;border:1px dashed var(--line);background:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit}
+.ent-empty{font-size:12px;color:var(--sub);margin:2px 0 8px}
 .btnrow{display:flex;gap:8px;margin-top:16px}
 .btn{flex:1;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn.primary{background:var(--accent);color:#fff}
@@ -429,7 +439,7 @@ const DEFAULT_ITEMS = [
   "소비자 관리","STP","상담","신뢰쌓기","E-Com"
 ];
 // 문제 신고가 들어왔을 때 어느 버전에서 생긴 일인지 알 수 있도록 버전을 박아둔다.
-const APP_VERSION = "2026.09.22";
+const APP_VERSION = "2026.09.23";
 // 운영자 문의 수집기 주소(앱스 스크립트 웹앱). 비어 있으면 문의 칸이 숨겨진다.
 const INQUIRY_URL = "https://script.google.com/macros/s/AKfycbyIjmKOuwzmo9TyiFOuHoN8niH0bVTJWffFeFXL15gehN8zTK1YwYdTTA-LGHiXvbOFqg/exec";
 
@@ -522,6 +532,9 @@ function normalizeState(d){
     itemsV: 2, modeV: 2,
     streakMode: (d.streakMode==="full" ? "full" : "any"),
     streakGoal: (d.streakGoal>0 ? d.streakGoal : 66),
+    people: Array.isArray(d.people) ? d.people : [], peopleV: 1,
+    consumerStages: (Array.isArray(d.consumerStages) && d.consumerStages.length) ? d.consumerStages : ["데모","구매"],
+    sponsorStages: (Array.isArray(d.sponsorStages) && d.sponsorStages.length) ? d.sponsorStages : ["제품체험","사업설명","Tool","사업시작요령"],
     ts: d.ts || 0
   };
   for(const k in ns.days){
@@ -548,7 +561,9 @@ async function cloudLoad(){
       const cloud = snap.data();
       if(cloud && cloud.days){
         state = normalizeState(cloud);
+        state.people = state.people.map(normalizePerson);
         try{ localStorage.setItem("tencore-v1", JSON.stringify(state)); }catch(e){}
+        migrateLinkedEntries();
         renderCal();
       }
     }
@@ -703,15 +718,97 @@ function renderItems(){
       +   '<div class="iarrow" data-act="expand" data-i="'+i+'">›</div>'
       + '</div>'
       + '<div class="idetail">'
-      +   '<label>간단 메모 (이미지 카드에 표시)</label>'
-      +   '<input maxlength="25" value="'+esc(d.n[i]||"").replace(/"/g,"&quot;")+'" placeholder="예: 성공하는 습관 2장" oninput="setNote('+i+',this.value)" onblur="flushPersist()">'
-      +   '<label>세부 내용 (자유 기록)</label>'
-      +   '<textarea placeholder="자세한 실천 내용, 느낀 점 등" oninput="setDetail('+i+',this.value)" onblur="flushPersist()">'+esc(d.t[i]||"")+'</textarea>'
+      +   (LINK_ITEMS[i] ? entriesHtml(d, i) :
+            '<label>간단 메모 (이미지 카드에 표시)</label>'
+      +     '<input maxlength="25" value="'+escAttr(d.n[i]||"")+'" placeholder="예: 성공하는 습관 2장" oninput="setNote('+i+',this.value)" onblur="flushPersist()">'
+      +     '<label>세부 내용 (자유 기록)</label>'
+      +     '<textarea placeholder="자세한 실천 내용, 느낀 점 등" oninput="setDetail('+i+',this.value)" onblur="flushPersist()">'+esc(d.t[i]||"")+'</textarea>')
       + '</div>'
       + '</div>';
   });
-  document.getElementById("items").innerHTML = html;
+  document.getElementById("items").innerHTML = html + peopleDatalists();
   updatePct();
+}
+function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
+
+// ---- 소비자관리·STP·신뢰쌓기: 사람별 기록(노션 데이터베이스처럼 한 줄씩 추가) ----
+// 하루 안에 여러 사람을 만났을 때 한 칸에 "김OO, 이OO"처럼 몰아 쓰면 한 사람으로
+// 등록되던 문제가 있어, 사람마다 [이름·간단 메모·상세 메모] 한 줄을 따로 둔다.
+function entriesOf(d, i){
+  if(!d.p || typeof d.p!=="object") d.p = {};
+  if(!Array.isArray(d.p[i])) d.p[i] = [];
+  return d.p[i];
+}
+function entriesHtml(d, i){
+  const list = entriesOf(d, i);
+  const dl = LINK_ITEMS[i].kind==="sponsor" ? "dl-sponsor" : "dl-consumer";
+  const who = LINK_ITEMS[i].kind==="sponsor" ? "파트너" : "소비자";
+  let h = '<div class="ent-head"><span>만난 사람 '+list.length+'명</span><span>'+who+' 탭·로스맵에 자동 등록</span></div>';
+  if(!list.length) h += '<div class="ent-empty">아래 [＋ 사람 추가]를 눌러 한 명씩 기록하세요</div>';
+  list.forEach(function(e){
+    h += '<div class="ent">'
+      + '<div class="ent-top">'
+      +   '<input list="'+dl+'" maxlength="20" value="'+escAttr(e.name||"")+'" placeholder="이름" oninput="setEntry('+i+',\''+e.id+'\',\'name\',this.value)" onblur="flushPersist()" id="ent-name-'+e.id+'">'
+      +   '<button type="button" class="ent-del" data-act="delent" data-i="'+i+'" data-e="'+e.id+'" aria-label="삭제">✕</button>'
+      + '</div>'
+      + '<input class="ent-memo" maxlength="40" value="'+escAttr(e.memo||"")+'" placeholder="간단 메모 (예: 정수기 데모)" oninput="setEntry('+i+',\''+e.id+'\',\'memo\',this.value)" onblur="flushPersist()">'
+      + '<textarea placeholder="상세 메모 (나눈 이야기, 반응, 다음 할 일 등)" oninput="setEntry('+i+',\''+e.id+'\',\'detail\',this.value)" onblur="flushPersist()">'+esc(e.detail||"")+'</textarea>'
+      + '</div>';
+  });
+  h += '<button type="button" class="ent-add" data-act="addent" data-i="'+i+'">＋ 사람 추가</button>';
+  return h;
+}
+// 이미 등록된 사람 이름을 자동완성으로 띄워 오타로 같은 사람이 두 번 생기는 걸 줄인다.
+function peopleDatalists(){
+  function opts(kind){
+    return state.people.filter(function(p){ return p.kind===kind && p.name; })
+      .map(function(p){ return '<option value="'+escAttr(p.name)+'">'; }).join("");
+  }
+  return '<datalist id="dl-consumer">'+opts("consumer")+'</datalist><datalist id="dl-sponsor">'+opts("sponsor")+'</datalist>';
+}
+// 사람별 기록을 기존 칸(d.n=카드용 한 줄, d.t=시트용 내용)에도 요약해 둔다.
+// 인증 카드·구글 시트·예전 버전 앱이 그대로 읽을 수 있게 하기 위해서다.
+function deriveEntrySummary(d, i){
+  const list = entriesOf(d, i).filter(function(e){ return (e.name||"").trim() || (e.memo||"").trim() || (e.detail||"").trim(); });
+  d.n[i] = list.map(function(e){ return (e.name||"").trim(); }).filter(Boolean).join(", ");
+  d.t[i] = list.map(function(e){
+    const bits = [(e.memo||"").trim(), (e.detail||"").trim()].filter(Boolean).join(" — ");
+    return ((e.name||"").trim() || "(이름없음)") + (bits ? ": "+bits : "");
+  }).join("\n");
+}
+function addEntry(i){
+  flushPersist();
+  const d = dayData(selKey);
+  const e = { id: genId(), name:"", memo:"", detail:"" };
+  entriesOf(d, i).push(e);
+  openIdx = i;
+  renderItems();
+  const el = document.getElementById("ent-name-"+e.id);
+  if(el){ try{ el.focus(); }catch(err){} }
+}
+function removeEntry(i, eid){
+  const d = dayData(selKey);
+  const list = entriesOf(d, i);
+  const e = list.find(function(x){ return x.id===eid; });
+  if(!e) return;
+  function go(){
+    d.p[i] = entriesOf(d, i).filter(function(x){ return x.id!==eid; });
+    deriveEntrySummary(d, i);
+    persist();
+    syncDayToPeople(selKey);
+    renderItems();
+  }
+  if((e.name||"").trim() || (e.memo||"").trim() || (e.detail||"").trim()){
+    askConfirm((e.name? "'"+e.name+"' ":"")+"기록을 삭제할까요? 소비자·파트너 활동 내역에서도 이 날짜 기록이 빠집니다.", go);
+  }else go();
+}
+function setEntry(i, eid, field, v){
+  const d = dayData(selKey);
+  const e = entriesOf(d, i).find(function(x){ return x.id===eid; });
+  if(!e) return;
+  e[field] = v;
+  deriveEntrySummary(d, i);
+  clearTimeout(saveTimer); saveTimer = setTimeout(persist, 400);
 }
 // #items 컨테이너 자체는 다시 그려지지 않으므로(내용만 매번 교체됨) 여기에 한 번만
 // 위임 리스너를 걸어두면 매번 새로 렌더링되는 체크박스/화살표에도 항상 반응한다.
@@ -725,12 +822,17 @@ function renderItems(){
     if(!el) return;
     const i = parseInt(el.getAttribute("data-i"), 10);
     const act = el.getAttribute("data-act");
-    const tag = act+"#"+i;
+    // 추가/삭제 버튼은 click 으로만 처리한다. touchend 에서 처리하면 화면이 다시 그려진 뒤
+    // 뒤따라오는 click 이 같은 자리로 올라온 다른 사람의 ✕ 를 눌러버릴 수 있다.
+    if((act==="addent" || act==="delent") && e.type!=="click") return;
+    const tag = act+"#"+i+"#"+(el.getAttribute("data-e")||"");
     const now = Date.now();
     if(now - (lastHandled[tag]||0) < 400) return;
     lastHandled[tag] = now;
     if(act === "toggle") toggle(e, i);
     else if(act === "expand") expand(i);
+    else if(act === "addent") addEntry(i);
+    else if(act === "delent") removeEntry(i, el.getAttribute("data-e"));
   }
   const container = document.getElementById("items");
   container.addEventListener("click", handle, false);
@@ -1044,12 +1146,15 @@ function normalizePerson(p){
   let stage = parseInt(p.stage,10); if(isNaN(stage)) stage = 0;
   stage = Math.max(0, Math.min(stages.length-1, stage));
   const history = Array.isArray(p.history) ? p.history.map(function(h){
-    return { id: h.id || genId(), date: h.date || "", content: h.content || "", source: h.source || "수동" };
+    const o = { id: h.id || genId(), date: h.date || "", content: h.content || "", source: h.source || "수동" };
+    if(h.entryId) o.entryId = h.entryId;
+    return o;
   }) : [];
   return {
     id: p.id || genId(), kind: kind, name: p.name || "", contact: p.contact || "",
     stage: stage, note: p.note || "", nextDate: p.nextDate || "",
     parentId: p.parentId || null, memberNo: p.memberNo || "", history: history,
+    autoCreated: !!p.autoCreated,
     createdAt: p.createdAt || Date.now(), updatedAt: p.updatedAt || Date.now()
   };
 }
@@ -1129,6 +1234,7 @@ function savePersonFromEditor(){
   p.note = document.getElementById("pm-note").value.trim();
   p.memberNo = document.getElementById("pm-memberno").value.trim();
   p.parentId = chosenParent;
+  p.autoCreated = false; // 직접 저장한 사람은 자동 정리 대상에서 제외
   p.updatedAt = Date.now();
   persist();
   crmPush(p.id);
@@ -1215,35 +1321,101 @@ const LINK_ITEMS = {
   6: { kind:"sponsor", source:"STP" },
   8: { kind:"sponsor", source:"신뢰쌓기" }
 };
-function syncDayToPeople(key){
-  if(!key || !state.days[key]) return;
-  const d = state.days[key];
+function linkedContent(e, cfg){
+  const s = [(e.memo||"").trim(), (e.detail||"").trim()].filter(Boolean).join(" — ");
+  return s || (cfg.source+" 기록");
+}
+// 반환값: 이번 동기화로 바뀐 사람 id 목록. silent=true 면 저장·전송·화면갱신을 호출한 쪽에 맡긴다.
+function syncDayToPeople(key, silent){
+  if(!key || !state.days[key]) return [];
+  const d = dayData(key);
+  const now = Date.now();
   let changed = false;
-  const touched = [];
+  const touched = {};
   Object.keys(LINK_ITEMS).forEach(function(idxStr){
     const idx = parseInt(idxStr,10);
     const cfg = LINK_ITEMS[idx];
-    const name = (d.n[idx]||"").trim();
-    const content = (d.t[idx]||"").trim();
-    if(!name) return;
-    let p = state.people.find(function(x){ return x.kind===cfg.kind && (x.name||"").trim().toLowerCase()===name.toLowerCase(); });
-    if(!p){ p = normalizePerson({ kind:cfg.kind, name:name }); state.people.push(p); changed = true; }
-    let h = (p.history||[]).find(function(x){ return x.date===key && x.source===cfg.source; });
-    if(content){
-      if(h){ if(h.content!==content){ h.content = content; changed = true; } }
-      else{ p.history.push({ id: genId(), date:key, content:content, source:cfg.source }); changed = true; }
-      p.updatedAt = Date.now();
-      touched.push(p.id);
-    }else if(h){
-      p.history = p.history.filter(function(x){ return x!==h; });
-      changed = true;
-      touched.push(p.id);
+    const list = entriesOf(d, idx);
+    const keep = {};
+    list.forEach(function(e){
+      const name = (e.name||"").trim();
+      if(!name) return;
+      const content = linkedContent(e, cfg);
+      let p = state.people.find(function(x){ return x.kind===cfg.kind && (x.name||"").trim().toLowerCase()===name.toLowerCase(); });
+      if(!p){ p = normalizePerson({ kind:cfg.kind, name:name, autoCreated:true }); state.people.push(p); changed = true; }
+      p.history = p.history || [];
+      let h = p.history.find(function(x){ return x.date===key && x.source===cfg.source && x.entryId===e.id; });
+      // 예전 버전에서 만들어진 기록(entryId 없음)은 그대로 이어받는다.
+      if(!h) h = p.history.find(function(x){ return x.date===key && x.source===cfg.source && !x.entryId && !keep[x.id]; });
+      if(h){
+        if(h.content!==content || h.entryId!==e.id){ h.content = content; h.entryId = e.id; p.updatedAt = now; changed = true; touched[p.id] = 1; }
+      }else{
+        h = { id: genId(), date:key, content:content, source:cfg.source, entryId:e.id };
+        p.history.push(h); p.updatedAt = now; changed = true; touched[p.id] = 1;
+      }
+      keep[h.id] = 1;
+    });
+    // 지워졌거나 이름이 바뀐 줄의 예전 기록은 해당 사람의 활동 내역에서 뺀다.
+    state.people.forEach(function(p){
+      if(p.kind!==cfg.kind || !Array.isArray(p.history)) return;
+      const before = p.history.length;
+      p.history = p.history.filter(function(x){ return !(x.date===key && x.source===cfg.source && !keep[x.id]); });
+      if(p.history.length!==before){ changed = true; touched[p.id] = 1; }
+    });
+  });
+  if(pruneEmptyAutoPeople()) changed = true;
+  const ids = Object.keys(touched).filter(function(id){ return !!personById(id); });
+  if(changed && !silent){
+    persist();
+    ids.forEach(crmPush);
+    refreshCurrentPeopleView();
+  }
+  return ids;
+}
+// 자동으로 생겼다가 기록이 모두 빠진 사람(이름 오타, 이름 수정 전 값 등)을 정리한다.
+// 예전 버전에서 "김OO, 이OO"처럼 한 칸에 여러 명을 써서 한 사람으로 잘못 생긴 경우도 같이 정리한다.
+// 회원번호·연락처·메모·다음 액션일·단계·하위 라인 중 하나라도 있으면 절대 지우지 않는다.
+const MULTI_NAME_RE = /[,，\/、]/;
+function pruneEmptyAutoPeople(){
+  const before = state.people.length;
+  state.people = state.people.filter(function(p){
+    const auto = p.autoCreated || MULTI_NAME_RE.test(p.name||"");
+    if(!auto) return true;
+    if((p.history||[]).length) return true;
+    if(p.memberNo || p.contact || p.note || p.nextDate || p.stage>0) return true;
+    if(state.people.some(function(x){ return x.parentId===p.id; })) return true;
+    return false;
+  });
+  return state.people.length !== before;
+}
+// 예전 형식(한 칸에 이름, 한 칸에 내용)으로 적힌 날을 사람별 기록으로 옮긴다.
+// 쉼표·슬래시로 여러 명을 적었으면 한 명씩 나눈다. 한 번 옮긴 날은 다시 건드리지 않는다.
+function migrateLinkedEntries(){
+  let any = false;
+  const ids = {};
+  Object.keys(state.days||{}).forEach(function(key){
+    const d = dayData(key);
+    let dayChanged = false;
+    Object.keys(LINK_ITEMS).forEach(function(idxStr){
+      const idx = parseInt(idxStr,10);
+      if(d.p && Array.isArray(d.p[idx])) return;
+      const n = (d.n[idx]||"").trim(), t = (d.t[idx]||"").trim();
+      const list = entriesOf(d, idx);
+      if(!n && !t) return;
+      const names = n ? n.split(/[,，\/、]|\s+및\s+|\s*&\s*/).map(function(s){ return s.trim(); }).filter(Boolean) : [""];
+      names.forEach(function(nm){ list.push({ id: genId(), name:nm, memo:"", detail:t }); });
+      deriveEntrySummary(d, idx);
+      dayChanged = true;
+    });
+    if(dayChanged){
+      any = true;
+      syncDayToPeople(key, true).forEach(function(id){ ids[id] = 1; });
     }
   });
-  if(changed){
+  if(pruneEmptyAutoPeople()) any = true;
+  if(any){
     persist();
-    touched.forEach(crmPush);
-    refreshCurrentPeopleView();
+    Object.keys(ids).forEach(function(id){ if(personById(id)) crmPush(id); });
   }
 }
 
@@ -1524,9 +1696,15 @@ function queueAdd(key){
 function rowOf(key){
   const d = dayData(key);
   const checks = d.c.map(function(v){ return v ? "O" : ""; });
+  // 시트 스크립트를 바꾸지 않아도 보이도록 상세 메모를 [메모] 칸에 함께 담는다.
   const memo = state.items.map(function(nm,i){
-    const n = (d.n[i]||"").trim();
-    return n ? (nm+": "+n) : "";
+    if(LINK_ITEMS[i]){
+      const t = (d.t[i]||"").trim();
+      return t ? (nm+": "+t.split("\n").join("; ")) : "";
+    }
+    const n = (d.n[i]||"").trim(), t = (d.t[i]||"").trim().replace(/\s*\n\s*/g," ");
+    if(!n && !t) return "";
+    return nm+": "+[n,t].filter(Boolean).join(" — ");
   }).filter(Boolean).join(" / ");
   return {
     name: sync.name || "",
@@ -1932,11 +2110,9 @@ function applyBackup(txt){
   askConfirm("현재 기기의 기록을 백업 데이터로 교체합니다. 계속할까요?", function(){ doRestore(d); });
 }
 function doRestore(d){
-  state = {
-    items: d.items, days: d.days || {}, itemsV: 2, modeV: 2,
-    streakMode: (d.streakMode==="full" ? "full" : "any"),
-    streakGoal: (d.streakGoal>0 ? d.streakGoal : 66)
-  };
+  // 소비자·파트너 명단과 단계 설정도 함께 복원한다(예전에는 빠져서 복원하면 명단이 사라졌다).
+  state = normalizeState(d);
+  state.people = state.people.map(normalizePerson);
   for(const k in state.days){
     const dd = state.days[k];
     if(!Array.isArray(dd.c)) dd.c=[false,false,false,false,false,false,false,false,false,false];
@@ -1944,6 +2120,7 @@ function doRestore(d){
     if(!Array.isArray(dd.t)) dd.t=["","","","","","","","","",""];
   }
   persist();
+  migrateLinkedEntries();
   toast("복원되었습니다 ✓");
   showCal();
 }
@@ -1993,6 +2170,7 @@ function toast(msg){
 load();
 loadSync();
 loadCrmSync();
+try{ migrateLinkedEntries(); }catch(e){ console.error("migrate 오류:", e); }
 renderCal();
 // Claude 아티팩트 안에서는 외부 주소로의 전송이 막혀 있어 연동 칸을 숨긴다.
 // (깃허브 등 일반 웹페이지로 열었을 때만 구글 시트 연동을 쓸 수 있다)

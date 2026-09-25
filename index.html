@@ -2,209 +2,673 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#111315">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <title>10 CORE 체크</title>
 <style>
+/* =========================================================
+   10 CORE — Design tokens
+   ========================================================= */
 :root{
-  --bg:#f6f4ef;
-  --card:#ffffff;
-  --ink:#1c1a17;
-  --sub:#8a857c;
-  --line:#e7e3da;
-  --accent:#2f6b4f;
-  --accent-soft:#e3efe8;
-  --gold:#c9a45c;
-  --danger:#b4544a;
+  color-scheme: dark;
+
+  --bg:#111315;
+  --surface-1:#171A1D;
+  --surface-2:#1D2125;
+  --surface-raised:#24292E;
+
+  --border-subtle:#272C31;
+  --border-strong:#343B42;
+
+  --text-primary:#F2F4F5;
+  --text-secondary:#A6ADB4;
+  --text-muted:#747C84;
+  --text-disabled:#51585F;
+
+  --primary:#6FA98A;
+  --primary-hover:#7DB697;
+  --primary-soft:#1D2B25;
+  --primary-border:#355844;
+  --on-primary:#0D1510;
+
+  --reward:#D1AE68;
+  --reward-soft:#2D281D;
+  --reward-border:#665532;
+  --on-reward:#1A150B;
+
+  --danger:#D8746B;
+  --danger-soft:#2E1E1C;
+  --warning:#D4A85D;
+  --info:#6F9FD8;
+
+  /* 로스맵 SVG 전용 (이미지 저장 시에도 그대로 치환됨) */
+  --rm-line:#4A525A;
+  --rm-dash:#6A727A;
+  --rm-fill:#223A2E;
+
+  /* 기존 코드·SVG·이미지 저장 로직이 참조하는 변수 — 이름 유지(값만 새 팔레트로) */
+  --card:#171A1D;
+  --ink:#F2F4F5;
+  --sub:#A6ADB4;
+  --line:#272C31;
+  --accent:#6FA98A;
+  --accent-soft:#1D2B25;
+  --gold:#D1AE68;
+
+  --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#171512; --card:#211f1b; --ink:#f0ede6; --sub:#9a948a;
-    --line:#35322c; --accent:#6fae8e; --accent-soft:#26332c; --gold:#d4b477; --danger:#d07a70;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#171512; --card:#211f1b; --ink:#f0ede6; --sub:#9a948a;
-  --line:#35322c; --accent:#6fae8e; --accent-soft:#26332c; --gold:#d4b477; --danger:#d07a70;
-}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
-  background:var(--bg); color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif;
-  min-height:100vh; padding-bottom:40px;
+  background:var(--bg); color:var(--text-primary);
+  font-family:"Pretendard Variable","Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  font-size:14px; line-height:21px; font-weight:400;
+  word-break:keep-all; overflow-wrap:anywhere;
+  min-height:100vh; min-height:100dvh;
+  padding-bottom:calc(40px + var(--safe-b));
+  padding-left:var(--safe-l); padding-right:var(--safe-r);
+  -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:520px;margin:0 auto;padding:20px 16px}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.logo{font-weight:800;font-size:20px;letter-spacing:.5px}
-.logo em{font-style:normal;color:var(--accent)}
-.gear{background:none;border:1px solid var(--line);border-radius:10px;padding:7px 11px;color:var(--sub);font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
-.hbtns{display:flex;gap:6px;flex-shrink:0}
-.monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.monthbar h2{font-size:18px;font-weight:700}
-.nav{background:var(--card);border:1px solid var(--line);border-radius:10px;width:38px;height:38px;font-size:16px;color:var(--ink);cursor:pointer}
-.dow{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;color:var(--sub);margin-bottom:6px}
-.dow span:first-child{color:var(--danger)}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+b,strong{font-weight:600}
+::placeholder{color:var(--text-disabled);opacity:1}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:var(--r-sm)}
+::selection{background:var(--primary-border)}
+
+.wrap{max-width:520px;margin:0 auto;padding:0 20px 24px;padding-top:var(--safe-t)}
+
+/* =========================================================
+   Top tabs
+   ========================================================= */
+.tabbar{
+  position:sticky; top:0; z-index:30;
+  display:flex; align-items:stretch; gap:0;
+  margin:0 -20px 24px; padding:var(--safe-t) 12px 0;
+  background:var(--bg);
+  border-bottom:1px solid var(--border-subtle);
+  overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+}
+.tabbar::-webkit-scrollbar{display:none}
+.tab{
+  position:relative; flex:1 1 0; min-width:56px; height:48px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  background:none; border:none; padding:0 6px;
+  font-size:14px; line-height:20px; font-weight:500; color:var(--text-muted);
+  white-space:nowrap; letter-spacing:-.1px;
+  transition:color .15s;
+}
+.tab svg{width:18px;height:18px;flex:0 0 18px;display:none}
+.tab:hover{color:var(--text-secondary)}
+.tab.on{color:var(--text-primary);font-weight:600}
+.tab::after{
+  content:""; position:absolute; left:10px; right:10px; bottom:-1px; height:2px;
+  border-radius:2px 2px 0 0; background:transparent; transition:background .15s;
+}
+.tab.on::after{background:var(--primary)}
+.tab.on[data-tab="view-grat"]::after{background:var(--reward)}
+.tab:focus-visible{outline-offset:-4px}
+/* 감사·체크 → 소비자·파트너 → 로스맵 흐름을 얇은 구분선으로 */
+.tab[data-tab="view-consumers"],.tab[data-tab="view-roadmap"]{margin-left:9px}
+.tab[data-tab="view-consumers"]::before,.tab[data-tab="view-roadmap"]::before{
+  content:""; position:absolute; left:-5px; top:50%; width:1px; height:14px; margin-top:-7px;
+  background:var(--border-strong);
+}
+@media (min-width:440px){ .tab svg{display:block} }
+@media (max-width:360px){ .tab{font-size:13px;padding:0 3px} .tab[data-tab="view-consumers"],.tab[data-tab="view-roadmap"]{margin-left:7px} }
+
+/* =========================================================
+   Page header · titles
+   ========================================================= */
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-8px 0 16px}
+.logo{font-size:18px;line-height:24px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.logo em{font-style:normal;color:var(--primary);margin-left:2px}
+.hbtns{display:flex;gap:0;flex-shrink:0;margin-right:-8px}
+.gear{
+  background:none; border:none; min-height:44px; padding:0 8px;
+  font-size:13px; font-weight:500; color:var(--text-secondary); white-space:nowrap;
+  border-radius:var(--r-md); transition:color .15s, background .15s;
+}
+.gear:hover{color:var(--text-primary);background:var(--surface-1)}
+
+.daytitle{font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.pctbig{font-size:13px;line-height:19px;color:var(--text-muted);margin-bottom:20px}
+.page-head{margin-bottom:20px}
+.page-head .daytitle{margin-bottom:4px}
+.page-head .pctbig{margin-bottom:0}
+
+.gtitle{display:flex;flex-direction:column;gap:4px;margin-bottom:20px}
+.gtitle span{font-size:13px;line-height:19px;font-weight:400;color:var(--text-muted);letter-spacing:0}
+
+.daytitle.sec{
+  font-size:16px; line-height:22px; font-weight:650; letter-spacing:-.1px;
+  margin:32px 0 12px; padding-top:24px; border-top:1px solid var(--border-subtle);
+}
+.daytitle.sec.first{margin-top:8px}
+
+.back{
+  display:inline-flex; align-items:center; gap:4px; min-height:44px; margin:-4px 0 4px -4px; padding:0 4px;
+  background:none; border:none; color:var(--text-secondary); font-size:14px; font-weight:500;
+  border-radius:var(--r-md);
+}
+.back:hover{color:var(--text-primary)}
+
+/* =========================================================
+   Calendar (체크 / 감사 공통)
+   ========================================================= */
+.monthbar{display:flex;align-items:center;gap:0;margin-bottom:12px}
+.monthbar h2{order:0;margin-right:auto;font-size:18px;line-height:24px;font-weight:650;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.nav{
+  position:relative; order:1; width:44px; height:36px;
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  color:var(--text-secondary); font-size:18px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s,color .15s;
+}
+.monthbar h2 + .nav{order:2}
+.monthbar .nav:first-child{border-radius:var(--r-md) 0 0 var(--r-md)}
+.monthbar h2 + .nav{border-radius:0 var(--r-md) var(--r-md) 0;border-left:none}
+.nav::after{content:"";position:absolute;inset:-4px 0}
+.nav:hover{background:var(--surface-2);color:var(--text-primary)}
+
+.dow{
+  display:grid; grid-template-columns:repeat(7,1fr); text-align:center;
+  font-size:11px; line-height:16px; font-weight:500; color:var(--text-muted);
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-bottom:none;
+  border-radius:var(--r-lg) var(--r-lg) 0 0; padding:10px 6px 4px;
+}
+.dow span:first-child{color:rgba(216,116,107,.75)}
+.grid{
+  display:grid; grid-template-columns:repeat(7,1fr); gap:2px;
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-top:none;
+  border-radius:0 0 var(--r-lg) var(--r-lg); padding:2px 6px 8px;
+}
 .cell{
-  aspect-ratio:1/1.15; background:var(--card); border:1px solid var(--line); border-radius:12px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  font-size:14px;cursor:pointer;
+  position:relative; aspect-ratio:1/1.08; min-height:44px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  border-radius:var(--r-md); background:transparent;
+  font-size:14px; line-height:18px; cursor:pointer; transition:background .12s;
 }
-.cell.empty{background:transparent;border:none;cursor:default}
-.cell.today{border:2px solid var(--accent)}
-.cell .pct{font-size:10px;font-weight:700;color:var(--accent)}
-.cell .pct.full{color:var(--gold)}
-.cell.sun .num{color:var(--danger)}
-.ring{width:6px;height:6px;border-radius:50%;background:var(--line)}
-.stats{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-around;text-align:center}
-.streak{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-.streak .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--sub);margin-bottom:9px}
-.streak .top b{font-size:16px;color:var(--ink)}
-.goalbar{height:8px;background:var(--line);border-radius:5px;overflow:hidden}
-.goalbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:5px}
-.stats b{display:block;font-size:20px}
-.stats span{font-size:12px;color:var(--sub)}
-/* day view */
+.cell .num{color:var(--text-muted);font-variant-numeric:tabular-nums}
+.cell.empty{cursor:default;pointer-events:none}
+.cell.sun .num{color:rgba(216,116,107,.7)}
+.ring{width:4px;height:4px;border-radius:50%;background:transparent}
+.cell .pct,.cell .gcnt{font-size:10px;line-height:12px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.cell .pct{color:var(--primary)}
+.cell .pct.full{color:var(--reward)}
+/* 실천일(민트) · 100% 달성(골드) */
+.cell:has(.pct) {background:var(--primary-soft)}
+.cell:has(.pct) .num{color:var(--text-primary)}
+.cell:has(.pct.full){background:var(--reward-soft)}
+/* 감사 달력: 골드 숫자, 기본 3가지를 채운 날만 옅은 골드 면 */
+.cell .gcnt{color:var(--reward)}
+.cell:has(.gcnt) .num{color:var(--text-primary)}
+.cell:has(.gcnt.full){background:var(--reward-soft)}
+/* 오늘 */
+.cell.today{box-shadow:inset 0 0 0 1.5px var(--text-secondary)}
+.cell.today .num{color:var(--text-primary);font-weight:700}
+
+/* 연속 기록 + 월간 통계 = 하나의 요약 패널 */
+.streak{
+  margin-top:16px; background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg) var(--r-lg) 0 0; padding:16px 16px 14px;
+}
+.streak .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:12px}
+.streak .top b{font-size:14px;line-height:21px;font-weight:500;color:var(--text-secondary);white-space:nowrap}
+.streak .top b .kpi{font-size:24px;line-height:28px;font-weight:700;color:var(--text-primary);margin:0 2px;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.streak .top span{font-size:12px;line-height:17px;font-weight:500;color:var(--text-muted);text-align:right;padding-bottom:3px;font-variant-numeric:tabular-nums}
+.goalbar{height:4px;background:var(--surface-raised);border-radius:2px;overflow:hidden}
+.goalbar i{display:block;height:100%;background:var(--reward);border-radius:2px;transition:width .3s}
+.stats{
+  display:grid; grid-template-columns:repeat(3,1fr);
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-top:1px solid var(--border-subtle);
+  border-radius:0 0 var(--r-lg) var(--r-lg); margin-top:-1px; padding:14px 0;
+}
+.streak + .stats{border-top-color:var(--border-subtle)}
+.stats > div{padding:0 12px;text-align:left}
+.stats > div + div{border-left:1px solid var(--border-subtle)}
+.stats b{display:block;font-size:18px;line-height:24px;font-weight:650;color:var(--text-primary);font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.stats span{display:block;font-size:11px;line-height:16px;font-weight:500;color:var(--text-muted);margin-top:2px}
+
+/* 감사 요약은 조금 더 부드럽게 */
+#view-grat .streak .top b .kpi{font-size:20px;color:var(--reward)}
+#view-grat .stats b{font-weight:600}
+
+/* =========================================================
+   Views
+   ========================================================= */
 .view{display:none}
-.view.on{display:block}
-.back{background:none;border:none;color:var(--accent);font-size:15px;font-weight:600;cursor:pointer;padding:4px 0;margin-bottom:8px}
-.daytitle{font-size:22px;font-weight:800;margin-bottom:4px}
-.pctbig{font-size:15px;color:var(--sub);margin-bottom:14px}
-.pctbig b{color:var(--accent);font-size:20px}
-.pctbig b.full{color:var(--gold)}
-.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:18px}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:6px;transition:width .25s}
-/* items */
-.item{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
-.item.done{background:var(--accent-soft);border-color:var(--accent)}
-.irow{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;user-select:none}
+.view.on{display:block;animation:vin .18s ease-out}
+@keyframes vin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+#view-consumers,#view-sponsors,#view-roadmap{padding-bottom:88px}
+
+/* =========================================================
+   Daily check
+   ========================================================= */
+.progress{
+  position:sticky; top:0; z-index:10; background:var(--bg);
+  margin:0 -20px 16px; padding:12px 20px 14px;
+  border-bottom:1px solid transparent;
+}
+#view-day .pctbig,#view-gday .pctbig{
+  display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin-bottom:10px;
+  font-size:12px; line-height:17px; font-weight:500; color:var(--text-muted);
+}
+#view-day .pctbig b,#view-gday .pctbig b{font-size:24px;line-height:28px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums;letter-spacing:-.4px;order:-1}
+#view-gday .pctbig{margin-bottom:20px}
+#view-gday .pctbig b{order:0}
+#view-day .pctbig b.full{color:var(--reward)}
+.streak-badge{
+  align-self:center; margin-left:auto;
+  font-size:11px; line-height:16px; font-weight:600; letter-spacing:.2px;
+  color:var(--reward); background:var(--reward-soft); border:1px solid var(--reward-border);
+  border-radius:var(--r-sm); padding:2px 8px; white-space:nowrap;
+}
+.streak-badge:empty{display:none}
+.bar{height:6px;background:var(--surface-raised);border-radius:3px;overflow:hidden;margin:0}
+.bar i{display:block;height:100%;width:0;background:var(--primary);border-radius:3px;transition:width .25s}
+#view-day:has(#day-pct.full) .bar i{background:var(--reward)}
+
+/* 리스트 패널 (체크 항목 · 소비자) */
+#items,#con-list{
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); overflow:hidden;
+}
+#con-list:has(> .rm-empty){background:transparent;border-style:dashed;border-color:var(--border-strong)}
+.item{background:transparent;transition:background .15s}
+.item + .item{border-top:1px solid var(--border-subtle)}
+.irow{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 8px 8px 16px;cursor:pointer;user-select:none;-webkit-user-select:none}
 .chkhit{
-  /* 실제 탭 가능 영역을 시각적 박스보다 넉넉하게 넓혀서(패딩+음수 마진),
-     레이아웃은 그대로 두면서 터치 인식률을 높인다. */
+  /* 실제 탭 영역(46px)은 넉넉하게, 레이아웃은 그대로 */
   padding:12px; margin:-12px; display:flex; align-items:center; justify-content:center;
   flex-shrink:0; cursor:pointer;
 }
 .chk{
-  width:26px;height:26px;border-radius:8px;border:2px solid var(--line);
-  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0;
-  pointer-events:none;
+  width:22px;height:22px;border-radius:var(--r-sm);border:1.5px solid var(--border-strong);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;line-height:1;font-weight:700;color:var(--on-primary);flex-shrink:0;
+  pointer-events:none; transition:background .12s,border-color .12s;
 }
-.item.done .chk{background:var(--accent);border-color:var(--accent)}
-.imain{flex:1;min-width:0}
-.iname{font-size:15px}
+.chkhit:hover .chk{border-color:var(--text-muted)}
+.item.done{background:rgba(111,169,138,.045)}
+.item.done .chk{background:var(--primary);border-color:var(--primary)}
+.imain{flex:1;min-width:0;padding:4px 0}
+.iname{font-size:15px;line-height:22px;font-weight:400;color:var(--text-primary)}
 .item.done .iname{font-weight:600}
-.inote{font-size:12px;color:var(--gold);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.iarrow{color:var(--sub);font-size:12px;flex-shrink:0;transition:transform .2s}
-.item.open .iarrow{transform:rotate(90deg)}
-.idetail{display:none;padding:0 14px 14px;border-top:1px dashed var(--line)}
+.inote{font-size:12px;line-height:17px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iarrow{
+  flex-shrink:0; width:36px; height:40px; display:flex; align-items:center; justify-content:center;
+  color:var(--text-disabled); font-size:18px; transition:transform .2s,color .15s;
+}
+.item.open .iarrow{transform:rotate(90deg);color:var(--text-secondary)}
+.item.open{background:var(--surface-2)}
+.item.open.done{background:var(--surface-2)}
+.idetail{display:none;padding:0 16px 16px 50px}
 .item.open .idetail{display:block}
-.idetail label{display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px}
-.idetail input{
-  width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
-  padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;
+.idetail label{display:block;font-size:12px;line-height:17px;color:var(--text-secondary);font-weight:500;margin:12px 0 6px}
+.idetail label:first-child{margin-top:4px}
+.idetail input,.idetail textarea,.fld{
+  width:100%; background-color:var(--bg); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  padding:10px 12px; font-size:14px; line-height:20px; color:var(--text-primary);
+  transition:border-color .15s;
 }
-.idetail textarea{
-  width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
-  padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;resize:vertical;min-height:70px;
-}
-.idetail input:focus,.idetail textarea:focus{outline:none;border-color:var(--accent)}
-.ent-head{display:flex;align-items:center;justify-content:space-between;margin:12px 0 6px;font-size:12px;color:var(--sub);font-weight:600}
-.ent{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:var(--bg)}
-.ent-top{display:flex;gap:6px;align-items:center}
-.ent-top input{flex:1;min-width:0;font-weight:700}
-.ent input,.ent textarea{background:var(--card)}
-.ent textarea{margin-top:6px;min-height:60px}
+.idetail textarea,textarea.fld{resize:vertical;min-height:72px}
+.idetail input:focus,.idetail textarea:focus,.fld:focus{border-color:var(--primary-border);box-shadow:0 0 0 3px rgba(111,169,138,.12)}
+@media (max-width:380px){ .idetail{padding-left:16px} }
+
+/* 사람별 기록(소비자관리·STP·신뢰쌓기) */
+.ent-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 4px;font-size:12px;line-height:17px;color:var(--text-secondary);font-weight:500}
+.ent-head span:last-child{font-size:11px;color:var(--text-muted);font-weight:400;text-align:right}
+.ent{padding:10px 0;border-bottom:1px solid var(--border-subtle)}
+.ent-top{display:flex;gap:4px;align-items:center}
+.ent-top input{flex:1;min-width:0;font-weight:600}
+.ent textarea{margin-top:6px;min-height:56px}
 .pchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
-.pchips span{font-size:11.5px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 8px;line-height:1.5}
-.ent-del{flex:0 0 auto;width:34px;height:38px;border:none;background:none;color:var(--danger);font-size:16px;cursor:pointer;font-family:inherit}
-.ent-add{width:100%;border:1px dashed var(--line);background:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit}
-.ent-empty{font-size:12px;color:var(--sub);margin:2px 0 8px}
-.btnrow{display:flex;gap:8px;margin-top:16px}
-.btn{flex:1;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn.primary{background:var(--accent);color:#fff}
-.btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
-.btn.notion{background:var(--ink);color:var(--bg)}
-.btn:disabled{opacity:.5}
-.note{font-size:12px;color:var(--sub);text-align:center;margin-top:10px;line-height:1.6}
-.note a{color:var(--accent)}
-/* settings */
-.set-item{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.set-item span{width:22px;font-size:13px;color:var(--sub);text-align:right;flex-shrink:0}
-.set-item.askrow span{width:36px;white-space:nowrap}
-.set-item input{
-  flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;
-  padding:11px 12px;font-size:14px;color:var(--ink);font-family:inherit;
+.pchips span{font-size:11px;line-height:16px;font-weight:500;color:var(--text-secondary);background:var(--surface-raised);border-radius:var(--r-sm);padding:1px 6px}
+.ent-del{
+  flex:0 0 auto; width:40px; height:40px; border:none; background:none; border-radius:var(--r-md);
+  color:var(--text-muted); font-size:14px;
 }
-.set-item input:focus{outline:none;border-color:var(--accent)}
-/* modal */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:20px}
-.modal.on{display:flex}
-.modal-box{background:var(--card);border-radius:16px;padding:16px;max-width:400px;width:100%;max-height:88vh;overflow:auto}
-.modal-box img{width:100%;border-radius:10px;display:block}
-.toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:20px;
-  font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
+.ent-del:hover{color:var(--danger);background:var(--danger-soft)}
+.ent-add{
+  width:100%; min-height:44px; margin-top:12px; border:1px dashed var(--border-strong); background:none;
+  border-radius:var(--r-md); padding:10px; font-size:14px; font-weight:600; color:var(--primary);
 }
-.toast.on{opacity:1}
+.ent-add:hover{border-color:var(--primary-border);background:var(--primary-soft)}
+.ent-empty{font-size:12px;line-height:17px;color:var(--text-muted);margin:4px 0 0}
 
-/* ---- 탭 내비게이션 ---- */
-.tabbar{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-.tabbar::-webkit-scrollbar{display:none}
-.tab{
-  flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:999px;
-  padding:8px 15px;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;font-family:inherit;white-space:nowrap;
+/* =========================================================
+   Buttons
+   ========================================================= */
+.btnrow{display:flex;gap:8px;margin-top:24px}
+.btn{
+  flex:1; min-height:48px; border:1px solid transparent; border-radius:var(--r-md); padding:12px 14px;
+  font-size:15px; line-height:22px; font-weight:600; letter-spacing:-.1px;
+  transition:background .15s,border-color .15s,color .15s;
 }
-.tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
-@media (max-width:440px){ .tabbar{gap:4px} .tab{flex:1 1 auto;padding:8px 4px;font-size:12px;letter-spacing:-.2px} }
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.ghost{background:var(--surface-1);border-color:var(--border-subtle);color:var(--text-primary)}
+.btn.ghost:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.btn.notion{background:var(--text-primary);color:var(--bg)}
+.btn.warn{background:transparent;border-color:var(--reward-border);color:var(--warning)}
+.btn.warn:hover{background:var(--reward-soft)}
+.btn.reward{background:var(--reward-soft);border-color:var(--reward-border);color:var(--reward)}
+.btn.reward:hover{background:#353021}
+.btn:disabled{opacity:.45;cursor:default}
+#pm-del{flex:0 0 auto;min-width:88px;background:transparent;border-color:transparent;color:var(--danger)}
+#pm-del:hover{background:var(--danger-soft)}
 
-/* ---- 감사일기 ---- */
-.gtitle{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin-bottom:14px}
-.gtitle span{font-size:13px;font-weight:500;color:var(--sub)}
-.cell .gcnt{font-size:10px;font-weight:700;color:var(--accent)}
-.cell .gcnt.full{color:var(--gold)}
-.gsec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:10px}
-.gsec h3{display:flex;align-items:center;justify-content:space-between;font-size:14.5px;font-weight:700;margin:0 2px 8px}
-.gsec h3 span{font-size:12px;color:var(--sub);font-weight:600}
-.gline{display:flex;gap:6px;align-items:flex-start;margin-bottom:6px}
-.gline i{flex:0 0 18px;font-style:normal;font-size:12px;color:var(--gold);font-weight:800;padding-top:11px;text-align:center}
-.gline textarea{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;color:var(--ink);font-family:inherit;resize:none;min-height:42px;line-height:1.45}
-.gline textarea:focus{outline:none;border-color:var(--accent)}
-.gline .gdel{flex:0 0 30px;height:40px;border:none;background:none;color:var(--danger);font-size:15px;cursor:pointer;font-family:inherit}
-.gline .gdel.off{visibility:hidden}
-.gadd{display:block;width:100%;border:1px dashed var(--accent);background:var(--card);border-radius:14px;padding:13px;font-size:14px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;margin-bottom:4px}
+/* 인증 카드: 평소 차분하게, 100% 달성 시 보상 강조 */
+#view-day .btnrow .btn.primary{background:var(--surface-1);border-color:var(--border-strong);color:var(--text-primary)}
+#view-day .btnrow .btn.primary:hover{background:var(--surface-2)}
+#view-day:has(#day-pct.full) .btnrow .btn.primary{background:var(--reward);border-color:var(--reward);color:var(--on-reward)}
+
+.note{font-size:12px;line-height:18px;color:var(--text-muted);text-align:center;margin-top:12px}
+.note a{color:var(--primary)}
+.note.left{text-align:left;margin:0 0 12px}
+
+/* =========================================================
+   Settings · Connect · Ask
+   ========================================================= */
+.set-item{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.set-item span{width:22px;font-size:12px;line-height:17px;font-weight:500;color:var(--text-muted);text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+.set-item.askrow span,.set-item.wide span{width:40px;text-align:left;white-space:nowrap}
+.set-item span{white-space:nowrap}
+#view-connect .set-item span,#view-set > .set-item span{width:40px;text-align:left}
+.set-item input,.set-item select,.sel{
+  flex:1; min-width:0; min-height:44px; background-color:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  padding:10px 12px; font-size:14px; line-height:20px; color:var(--text-primary);
+  transition:border-color .15s;
+}
+.set-item input:focus,.set-item select:focus,.sel:focus{border-color:var(--primary-border);box-shadow:0 0 0 3px rgba(111,169,138,.12)}
+select{appearance:none;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23747C84' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px!important}
+#set-list .set-item{margin-bottom:6px}
+.fld.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:18px;min-height:88px;background-color:var(--surface-1)}
+#ask-msg{background-color:var(--surface-1);min-height:120px}
+.checkrow{display:flex;align-items:center;gap:10px;min-height:44px;margin:0 0 4px;font-size:14px;color:var(--text-primary);cursor:pointer}
+.checkrow input{width:18px;height:18px;accent-color:var(--primary)}
+.sec-hint{font-size:12px;line-height:18px;color:var(--text-muted);margin:-4px 0 12px}
+#sync-status,#crm-sync-status,#ask-status{text-align:left;font-size:12px;color:var(--text-secondary)}
+#ask-status:empty{display:none}
+#shot-img{border-color:var(--border-subtle)!important;border-radius:var(--r-md)!important;background:var(--surface-1)!important}
+
+/* =========================================================
+   Modals
+   ========================================================= */
+.modal{
+  display:none; position:fixed; inset:0; z-index:50;
+  background:rgba(6,7,8,.72);
+  align-items:center; justify-content:center;
+  padding:calc(20px + var(--safe-t)) 16px calc(20px + var(--safe-b));
+}
+.modal.on{display:flex;animation:fin .15s ease-out}
+@keyframes fin{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-xl);
+  padding:20px; max-width:420px; width:100%; max-height:88vh; max-height:88dvh; overflow:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,.55);
+  overscroll-behavior:contain;
+}
+.modal-box .btnrow{margin-top:20px}
+.modal-box img{width:100%;border-radius:var(--r-md);display:block}
 #gpreview-img{max-height:62vh;object-fit:contain;background:#f7f3ea}
+#cfm-msg{font-size:15px!important;line-height:23px!important;color:var(--text-primary)}
+.modal-title{font-size:18px;line-height:24px;font-weight:650;margin-bottom:16px;letter-spacing:-.2px}
+.fld-label{display:block;font-size:12px;line-height:17px;color:var(--text-secondary);font-weight:500;margin:16px 0 6px}
+.fld-label:first-child{margin-top:0}
+.fld-label.group{margin-top:24px;padding-top:20px;border-top:1px solid var(--border-subtle)}
+.pm-hrow{display:flex;gap:6px}
+.pm-hrow .fld{padding:9px 10px;font-size:13px}
+.pm-hrow #pm-h-date{flex:0 0 132px;min-width:0}
+.pm-hrow #pm-h-content{flex:1;min-width:0}
+.btn-inline{
+  flex:0 0 auto; min-height:40px; border:1px solid var(--primary-border); background:var(--primary-soft);
+  color:var(--primary); border-radius:var(--r-md); padding:0 14px; font-size:13px; font-weight:600;
+}
+.btn-inline:hover{background:#22332B}
+#pm-history{display:flex;flex-direction:column;gap:8px;max-height:180px;overflow:auto;margin-bottom:10px;padding-right:2px}
+#pm-history > div{border-bottom:1px solid var(--border-subtle)!important;padding-bottom:8px!important;line-height:18px}
+#pm-history > div > div:first-child{font-variant-numeric:tabular-nums;color:var(--text-muted)!important}
+#pm-history button{min-width:32px;min-height:28px;color:var(--text-muted)!important}
+#pm-history button:hover{color:var(--danger)!important}
+#rmpop-body{font-size:17px!important;font-weight:650!important}
 
-/* ---- 소비자/파트너 공통: 필터칩, 단계뱃지 ---- */
-.chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px;padding-bottom:2px}
+/* =========================================================
+   Toast
+   ========================================================= */
+.toast{
+  position:fixed; left:50%; bottom:calc(24px + var(--safe-b)); transform:translate(-50%,8px);
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border-strong);
+  padding:11px 16px; border-radius:var(--r-md);
+  font-size:13px; line-height:19px; font-weight:500;
+  max-width:min(92vw,440px); width:max-content; text-align:left;
+  box-shadow:0 12px 32px rgba(0,0,0,.45);
+  opacity:0; pointer-events:none; z-index:99; transition:opacity .2s, transform .2s;
+}
+.toast::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--text-muted)}
+.toast[data-tone="ok"]::before{background:var(--primary)}
+.toast[data-tone="err"]::before{background:var(--danger)}
+.toast[data-tone="reward"]::before{background:var(--reward)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* =========================================================
+   Gratitude
+   ========================================================= */
+.gsec{margin-bottom:20px}
+.gsec h3{display:flex;align-items:center;justify-content:space-between;font-size:13px;line-height:18px;font-weight:600;color:var(--text-secondary);margin:0 0 8px}
+.gsec h3 span{font-size:11px;color:var(--text-muted);font-weight:500}
+.gline{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.gline i{flex:0 0 20px;font-style:normal;font-size:12px;line-height:17px;color:var(--reward);font-weight:600;padding-top:14px;text-align:center;font-variant-numeric:tabular-nums;opacity:.85}
+.gline textarea{
+  flex:1; min-width:0; background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  padding:12px 14px; font-size:15px; color:var(--text-primary); resize:none; min-height:46px; line-height:22px;
+  transition:border-color .15s;
+}
+.gline textarea:focus{border-color:var(--reward-border);box-shadow:0 0 0 3px rgba(209,174,104,.10)}
+.gline .gdel{flex:0 0 36px;height:46px;border:none;background:none;color:var(--text-muted);font-size:14px;border-radius:var(--r-md)}
+.gline .gdel:hover{color:var(--danger);background:var(--danger-soft)}
+.gline .gdel.off{visibility:hidden}
+.gadd{
+  display:block; width:100%; min-height:48px; border:1px dashed var(--border-strong); background:none;
+  border-radius:var(--r-md); padding:12px; font-size:14px; font-weight:600; color:var(--text-secondary);
+  margin:4px 0 0;
+}
+.gadd:hover{border-color:var(--reward-border);color:var(--reward)}
+#view-gday .btnrow .btn.primary{background:var(--reward-soft);border-color:var(--reward-border);color:var(--reward)}
+#view-gday .btnrow .btn.primary:hover{background:#353021}
+#view-grat .btnrow{margin-top:20px}
+
+/* =========================================================
+   Consumers · Partners
+   ========================================================= */
+.search{
+  -webkit-appearance:none; appearance:none;
+  width:100%; min-height:44px; margin-bottom:12px;
+  background:var(--surface-1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23747C84' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 12px center;
+  border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  padding:10px 12px 10px 36px; font-size:14px; line-height:20px; color:var(--text-primary);
+  transition:border-color .15s;
+}
+.search:focus{border-color:var(--primary-border);box-shadow:0 0 0 3px rgba(111,169,138,.12)}
+
+.chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:-6px -20px 10px;padding:6px 20px}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:12px;color:var(--sub);cursor:pointer;font-family:inherit;white-space:nowrap}
-.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
-.stagepill{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 9px}
-.stagepill.potential{color:var(--gold);background:transparent;border:1px dashed var(--gold)}
-.pmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px}
-.pmeta .next{font-size:11px;color:var(--sub)}
-.fab{position:fixed;right:20px;bottom:26px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:20;line-height:1}
-.fab-label{position:fixed;right:20px;border:none;border-radius:999px;padding:13px 18px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:20;font-family:inherit;white-space:nowrap}
+.chip{
+  position:relative; flex:0 0 auto; height:32px; padding:0 14px;
+  background:transparent; border:1px solid var(--border-subtle); border-radius:999px;
+  font-size:13px; font-weight:500; color:var(--text-secondary); white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.chip::after{content:"";position:absolute;inset:-6px 0}
+.chip:hover{border-color:var(--border-strong);color:var(--text-primary)}
+.chip.on{background:var(--primary-soft);border-color:var(--primary-border);color:var(--primary);font-weight:600}
 
-/* ---- 파트너(칸반) ---- */
-.kanban{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin:0 -16px;padding-left:16px;padding-right:16px}
-.kcol{flex:0 0 78%;max-width:280px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px}
-.kcol h3{font-size:13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;color:var(--sub);font-weight:600}
-.kcol h3 b{color:var(--ink);font-size:13px}
-.kcard{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
-.kcard.potential{border-style:dashed;border-color:var(--gold)}
-.kcard .kname{font-size:14px;font-weight:700}
-.kcard .kleg{font-size:11px;color:var(--sub);margin-top:2px}
+#con-list .irow{min-height:64px;padding:10px 8px 10px 16px}
+#con-list .iname{font-size:15px;font-weight:600}
+#con-list .item:hover{background:var(--surface-2)}
+#con-list .inote{color:var(--text-muted)}
+.inote.hit{color:var(--text-secondary);white-space:normal}
+.inote.hit::before{content:"검색 · ";color:var(--primary);font-weight:500}
+.stagepill{
+  display:inline-block; font-size:11px; line-height:16px; font-weight:600;
+  color:var(--primary); background:var(--primary-soft); border:1px solid transparent;
+  border-radius:var(--r-sm); padding:1px 7px; white-space:nowrap;
+}
+.stagepill.potential{color:var(--text-secondary);background:transparent;border:1px dashed var(--border-strong)}
+.pmeta{display:flex;align-items:center;gap:4px 0;flex-wrap:wrap;margin-top:4px}
+.pmeta .next{font-size:12px;line-height:17px;color:var(--text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pmeta .stagepill{margin-right:8px}
+.pmeta .next + .next::before{content:"·";margin:0 6px;color:var(--text-disabled)}
 
-/* ---- 로드맵 ---- */
-.rm-wrap{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:10px}
-.rm-empty{padding:40px 20px;text-align:center;color:var(--sub);font-size:13px;line-height:1.7}
+.rm-empty{padding:48px 20px;text-align:center;color:var(--text-muted);font-size:13px;line-height:20px}
+
+.fab,.fab-label{
+  position:fixed; z-index:20;
+  right:max(20px, calc(50vw - 240px));
+  bottom:calc(24px + var(--safe-b));
+  border:none; box-shadow:0 8px 24px rgba(0,0,0,.45);
+  background:var(--primary); color:var(--on-primary);
+  transition:background .15s, transform .15s;
+}
+.fab{width:52px;height:52px;border-radius:16px;font-size:24px;line-height:1;font-weight:500;display:flex;align-items:center;justify-content:center}
+.fab-label{height:48px;border-radius:12px;padding:0 18px;font-size:14px;font-weight:600;white-space:nowrap}
+.fab:hover,.fab-label:hover{background:var(--primary-hover)}
+.fab:active,.fab-label:active{transform:scale(.97)}
+
+/* 파트너 칸반 */
+.kanban{
+  display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity; scroll-padding:0 20px;
+  margin:0 -20px; padding:0 20px 12px; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent;
+}
+.kanban::-webkit-scrollbar{height:4px}
+.kanban::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px}
+.kcol{
+  flex:0 0 76%; max-width:270px; scroll-snap-align:start;
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-lg);
+  padding:12px 10px 4px; align-self:flex-start;
+}
+.kcol h3{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 4px 12px;font-size:14px;line-height:20px}
+.kcol h3 b{color:var(--text-primary);font-weight:600}
+.kcol h3 span{font-size:11px;line-height:16px;font-weight:600;color:var(--text-secondary);background:var(--surface-raised);border-radius:var(--r-sm);padding:1px 7px;font-variant-numeric:tabular-nums}
+.kcol > div[style]{text-align:center;padding:20px 4px 24px!important;color:var(--text-disabled)!important}
+.kcard{
+  background:var(--surface-2); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:border-color .15s,background .15s;
+}
+.kcard:hover{border-color:var(--border-strong)}
+.kcard.potential{background:transparent;border:1px dashed var(--border-strong)}
+.kcard .kname{font-size:14px;line-height:20px;font-weight:600;color:var(--text-primary)}
+.kcard .kleg{font-size:12px;line-height:17px;color:var(--text-muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.kcard .kname + .kleg{color:var(--text-secondary)}
+.kleg.hit{color:var(--text-secondary);margin-top:6px!important;padding-top:6px;border-top:1px solid var(--border-subtle)}
+.kleg.hit::before{content:"검색 · ";color:var(--primary);font-weight:500}
+
+/* =========================================================
+   Roadmap
+   ========================================================= */
+.rm-wrap{
+  overflow:auto; -webkit-overflow-scrolling:touch;
+  border:1px solid var(--border-subtle); border-radius:var(--r-lg); background:var(--surface-1); padding:10px;
+}
 .rm-node{cursor:pointer}
+.rm-wrap svg{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.rm-node circle{transition:stroke .12s, opacity .12s}
+.rm-ctl{cursor:pointer}
+.rm-ctl circle,.rm-ctl>rect{fill:var(--surface-raised);stroke:var(--border-strong);stroke-width:1}
+.rm-ctl text{font-size:14px;font-weight:600;fill:var(--text-secondary)}
+.rm-ctl g:last-of-type text{fill:var(--danger)}
+.rm-ctl .hit{fill:transparent;stroke:none}
+.rm-ctl .sep{stroke:var(--border-strong);stroke-width:1}
+.rm-ctl:hover circle,.rm-ctl:hover>rect{stroke:var(--text-muted)}
+.rm-node.rm-dragging{opacity:.3}
+.rm-node.rm-target circle{stroke:var(--primary-hover);stroke-width:5;stroke-dasharray:0}
+.rm-ghost{pointer-events:none;opacity:.92}
+.rm-ghost circle{fill:var(--primary);stroke:var(--text-primary);stroke-width:2}
+.rm-ghost text{fill:var(--on-primary);font-size:11px;font-weight:700}
+.rm-add{cursor:pointer}
+.rm-add circle{fill:var(--primary);stroke:var(--surface-1);stroke-width:2.5}
+.rm-add text{fill:var(--on-primary);font-size:13px;font-weight:700}
+.rm-node.rm-pick circle{stroke:var(--primary);stroke-width:3;stroke-dasharray:0}
+/* 옮기기 중: 붙일 수 없는 대상(자기 아래 라인)은 흐리게 */
+#rm-wrap:has(.rm-movebar) .rm-node:not(.rm-pick):not(.rm-dragging){opacity:.28}
+.rm-movebar{
+  position:sticky; left:0; top:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:var(--primary-soft); border:1px solid var(--primary-border); border-radius:var(--r-md);
+  padding:6px 6px 6px 12px; margin-bottom:10px; font-size:13px; line-height:19px; color:var(--text-primary);
+}
+.rm-movebar button{flex:0 0 auto;min-height:36px;background:var(--surface-1);border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:0 12px;font-size:13px;font-weight:600;color:var(--text-primary)}
+.rm-acts{display:flex;flex-direction:column;gap:0;margin-top:16px;border:1px solid var(--border-subtle);border-radius:var(--r-md);overflow:hidden}
+.rm-acts button{
+  text-align:left; min-height:48px; background:var(--surface-2); border:none; border-radius:0;
+  padding:12px 14px; font-size:14px; font-weight:500; color:var(--text-primary);
+}
+.rm-acts button + button{border-top:1px solid var(--border-subtle)}
+.rm-acts button:hover{background:var(--surface-raised)}
+.rm-wrap.rm-dragmode{touch-action:none;outline:1.5px solid var(--primary-border);outline-offset:-1.5px}
+.rm-zoom{display:flex;align-items:center;justify-content:flex-end;gap:0;margin-bottom:10px}
+.rm-zoom button{
+  position:relative; background:var(--surface-1); border:1px solid var(--border-subtle);
+  min-width:40px; height:36px; padding:0 10px; font-size:16px; font-weight:500; color:var(--text-secondary);
+}
+.rm-zoom button::after{content:"";position:absolute;inset:-4px 0}
+.rm-zoom button:first-child{border-radius:var(--r-md) 0 0 var(--r-md)}
+.rm-zoom span + button{border-radius:0 var(--r-md) var(--r-md) 0}
+.rm-zoom button:hover{color:var(--text-primary);background:var(--surface-2)}
+.rm-zoom button.fit{margin-left:8px;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--text-primary)}
+.rm-zoom span{
+  height:36px; min-width:52px; display:flex; align-items:center; justify-content:center;
+  background:var(--surface-1); border-top:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);
+  font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums;
+}
+.rm-help{font-size:11px;line-height:17px;color:var(--text-muted);text-align:left;margin-top:12px}
+.rm-help b{font-weight:600;color:var(--text-secondary)}
 .rm-node text{font-size:11px;font-weight:700}
-.rm-legend{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:11px;color:var(--sub);flex-wrap:wrap}
-.rm-legend span{display:inline-flex;align-items:center;gap:5px}
-.rm-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
-.rm-dot.dash{background:transparent;border:1.5px dashed var(--gold)}
+.rm-legend{display:flex;gap:16px;justify-content:flex-start;margin-top:8px;font-size:11px;line-height:16px;color:var(--text-muted);flex-wrap:wrap}
+.rm-legend span{display:inline-flex;align-items:center;gap:6px}
+.rm-dot{width:10px;height:10px;border-radius:50%;background:var(--rm-fill);border:1.5px solid var(--primary);display:inline-block}
+.rm-dot.dash{background:transparent;border:1.5px dashed var(--rm-dash)}
+#view-roadmap .btnrow{margin-top:20px}
+
+/* 첫 진입 시(탭을 누르기 전) 체크 탭을 활성으로 표시 */
+.tabbar:not(:has(.tab.on)) .tab[data-tab="view-cal"]{color:var(--text-primary);font-weight:600}
+.tabbar:not(:has(.tab.on)) .tab[data-tab="view-cal"]::after{background:var(--primary)}
+/* 입력 필드는 테두리로 포커스를 표시 */
+input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none}
+input[list]::-webkit-calendar-picker-indicator{display:none!important}
+#view-gday .pctbig{gap:4px 6px}
+/* FAB가 있는 화면에서는 토스트를 FAB 위로 */
+body:has(#view-consumers.on) .toast,body:has(#view-sponsors.on) .toast,body:has(#view-roadmap.on) .toast{bottom:calc(88px + var(--safe-b))}
+
+/* =========================================================
+   Motion / small screens
+   ========================================================= */
+@media (hover:hover){
+  .cell:hover{background:var(--surface-2)}
+  .cell:has(.pct):hover{background:#22332B}
+  .cell:has(.pct.full):hover,.cell:has(.gcnt.full):hover{background:#342E21}
+}
+@media (max-width:360px){
+  .wrap{padding-left:16px;padding-right:16px}
+  .tabbar,.progress,.chips,.kanban{margin-left:-16px;margin-right:-16px}
+  .progress,.chips,.kanban{padding-left:16px;padding-right:16px}
+  .gear{padding:0 6px;font-size:12.5px}
+  .stats > div{padding:0 10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>
@@ -212,20 +676,20 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 
 <div class="wrap">
 
-  <div class="tabbar" id="tabbar">
-    <button class="tab" data-tab="view-grat" onclick="openTab('view-grat')">🙏 감사</button>
-    <button class="tab" data-tab="view-cal" onclick="openTab('view-cal')">✅ 체크</button>
-    <button class="tab" data-tab="view-consumers" onclick="openTab('view-consumers')">🛒 소비자</button>
-    <button class="tab" data-tab="view-sponsors" onclick="openTab('view-sponsors')">💼 파트너</button>
-    <button class="tab" data-tab="view-roadmap" onclick="openTab('view-roadmap')">🧭 로스맵</button>
+  <div class="tabbar" id="tabbar" role="tablist">
+    <button class="tab" data-tab="view-grat" onclick="openTab('view-grat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.4-7.5-10.1A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.6C19.5 15.6 12 20 12 20z"/></svg><span>감사</span></button>
+    <button class="tab" data-tab="view-cal" onclick="openTab('view-cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 12.2l2.7 2.7L16 9.5"/></svg><span>체크</span></button>
+    <button class="tab" data-tab="view-consumers" onclick="openTab('view-consumers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg><span>소비자</span></button>
+    <button class="tab" data-tab="view-sponsors" onclick="openTab('view-sponsors')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5a6 6 0 0 1 12 0"/><circle cx="17" cy="9.5" r="2.5"/><path d="M16.5 14.2a5 5 0 0 1 4.5 5.3"/></svg><span>파트너</span></button>
+    <button class="tab" data-tab="view-roadmap" onclick="openTab('view-roadmap')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="5.5" r="2"/><circle cx="19" cy="5.5" r="2"/><circle cx="5" cy="18.5" r="2"/><circle cx="19" cy="18.5" r="2"/><path d="M6.5 7l3.6 3.3M17.5 7l-3.6 3.3M6.5 17l3.6-3.3M17.5 17l-3.6-3.3"/></svg><span>로스맵</span></button>
   </div>
 
   <div class="view" id="view-grat">
     <div class="daytitle gtitle">감사일기<span>감사할수록 감사할 일이 늘어난다</span></div>
     <div class="monthbar">
-      <button class="nav" onclick="moveGratMonth(-1)">‹</button>
+      <button class="nav" onclick="moveGratMonth(-1)" aria-label="이전 달">‹</button>
       <h2 id="g-month-title"></h2>
-      <button class="nav" onclick="moveGratMonth(1)">›</button>
+      <button class="nav" onclick="moveGratMonth(1)" aria-label="다음 달">›</button>
     </div>
     <div class="dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="grid" id="g-grid"></div>
@@ -236,23 +700,23 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div><b id="g-st-total">0</b><span>누적 감사</span></div>
     </div>
     <div class="btnrow">
-      <button class="btn primary" onclick="openGratDay(todayKey())">✍️ 오늘 감사 쓰기</button>
+      <button class="btn primary" onclick="openGratDay(todayKey())">오늘 감사 쓰기</button>
     </div>
   </div>
 
   <div class="view" id="view-gday">
     <button class="back" onclick="openTab('view-grat')">‹ 감사 달력으로</button>
     <div class="daytitle" id="gday-title"></div>
-    <div class="pctbig">오늘의 감사 <b id="gday-count">0</b>개<span id="gday-streak" style="margin-left:10px;color:var(--gold);font-weight:700"></span></div>
+    <div class="pctbig">오늘의 감사 <b id="gday-count">0</b>개<span id="gday-streak" class="streak-badge"></span></div>
     <div id="gday-body"></div>
     <div class="btnrow">
-      <button class="btn primary" onclick="openGratCard()">🖼 감사일기 이미지로 저장</button>
+      <button class="btn primary" onclick="openGratCard()">감사일기 이미지로 저장</button>
     </div>
   </div>
 
   <div class="view on" id="view-cal">
     <header>
-      <div class="logo">10 <em>CORE</em></div>
+      <div class="logo">10<em>CORE</em></div>
       <div class="hbtns">
         <button class="gear" id="btn-ask" onclick="openAsk()">문의하기</button>
         <button class="gear" onclick="openConnect()">연동 · 백업</button>
@@ -260,9 +724,9 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       </div>
     </header>
     <div class="monthbar">
-      <button class="nav" onclick="moveMonth(-1)">‹</button>
+      <button class="nav" onclick="moveMonth(-1)" aria-label="이전 달">‹</button>
       <h2 id="month-title"></h2>
-      <button class="nav" onclick="moveMonth(1)">›</button>
+      <button class="nav" onclick="moveMonth(1)" aria-label="다음 달">›</button>
     </div>
     <div class="dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="grid" id="grid"></div>
@@ -275,45 +739,59 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   </div>
 
   <div class="view" id="view-consumers">
-    <div class="daytitle" style="margin-bottom:2px">소비자 노트</div>
-    <div class="pctbig" style="margin-bottom:12px">관계를 만들고 소비자를 늘려가는 기록</div>
-    <input id="con-search" placeholder="🔍 이름·메모·구매내역 검색 (예: 정수기)" oninput="renderConsumers()" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);font-family:inherit;margin-bottom:10px">
+    <div class="page-head">
+      <div class="daytitle">소비자 노트</div>
+      <div class="pctbig">관계를 만들고 소비자를 늘려가는 기록</div>
+    </div>
+    <input id="con-search" class="search" type="search" placeholder="이름·메모·구매내역 검색 (예: 정수기)" oninput="renderConsumers()">
     <div class="chips" id="con-chips"></div>
     <div id="con-list"></div>
-    <button class="fab" onclick="openPersonEditor(null,'consumer')">＋</button>
+    <button class="fab" onclick="openPersonEditor(null,'consumer')" aria-label="소비자 추가">＋</button>
   </div>
 
   <div class="view" id="view-sponsors">
-    <div class="daytitle" style="margin-bottom:2px">파트너</div>
-    <div class="pctbig" style="margin-bottom:12px">혼자 꾸는 꿈은 꿈이지만 함께 꾸는 꿈은 현실이 된다</div>
-    <input id="spo-search" placeholder="🔍 이름·메모·활동내역 검색" oninput="renderSponsors()" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);font-family:inherit;margin-bottom:10px">
+    <div class="page-head">
+      <div class="daytitle">파트너</div>
+      <div class="pctbig">혼자 꾸는 꿈은 꿈이지만 함께 꾸는 꿈은 현실이 된다</div>
+    </div>
+    <input id="spo-search" class="search" type="search" placeholder="이름·메모·활동내역 검색" oninput="renderSponsors()">
     <div class="kanban" id="spo-kanban"></div>
-    <button class="fab" onclick="openPersonEditor(null,'sponsor')">＋</button>
+    <button class="fab" onclick="openPersonEditor(null,'sponsor')" aria-label="파트너 추가">＋</button>
   </div>
 
   <div class="view" id="view-roadmap">
-    <div class="daytitle" style="margin-bottom:2px">로스맵</div>
-    <div class="pctbig" style="margin-bottom:12px">이해하지 못하면 소유할 수 없다 — 괴테</div>
+    <div class="page-head">
+      <div class="daytitle">로스맵</div>
+      <div class="pctbig">이해하지 못하면 소유할 수 없다 — 괴테</div>
+    </div>
+    <div class="rm-zoom">
+      <button type="button" onclick="rmZoomBy(-1)" aria-label="축소">－</button>
+      <span id="rm-zoom-label">전체</span>
+      <button type="button" onclick="rmZoomBy(1)" aria-label="확대">＋</button>
+      <button type="button" class="fit" onclick="rmZoomFit()">전체 보기</button>
+    </div>
     <div class="rm-wrap" id="rm-wrap"></div>
     <div class="rm-legend">
       <span><i class="rm-dot"></i> 회원번호 있음</span>
       <span><i class="rm-dot dash"></i> 회원번호 없음(잠재)</span>
     </div>
-    <div class="btnrow" style="margin-top:10px">
-      <button class="btn ghost" onclick="saveRoadmapImage()">🖼 로스맵 이미지로 저장</button>
+    <div class="rm-help">동그라미 옆 <b>＋</b> 그 사람에게 새 사람 연결 · 선 위 <b>＋</b> 사이에 끼워 넣기 · <b>−</b> 연결 끊기<br>동그라미를 꾹 눌러 끌어다 놓거나, 눌러서 [옮기기]로 다른 사람에게 옮길 수 있습니다</div>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="saveRoadmapImage()">로스맵 이미지로 저장</button>
     </div>
-    <button class="fab-label" style="bottom:84px;background:var(--accent)" onclick="openPersonEditor(null,'sponsor')">＋ 파트너</button>
-    <button class="fab-label" style="bottom:26px;background:var(--gold)" onclick="openPersonEditor(null,'consumer')">＋ 소비자</button>
+    <button class="fab-label" onclick="rmAddChild('__root__')">＋ 사람 추가</button>
   </div>
 
   <div class="view" id="view-day">
     <button class="back" onclick="showCal()">‹ 달력으로</button>
     <div class="daytitle" id="day-title"></div>
-    <div class="pctbig">오늘의 달성률 <b id="day-pct">0%</b><span id="day-streak" style="margin-left:10px;color:var(--gold);font-weight:700"></span></div>
-    <div class="bar"><i id="day-bar"></i></div>
+    <div class="progress">
+      <div class="pctbig">오늘의 달성률 <b id="day-pct">0%</b><span id="day-streak" class="streak-badge"></span></div>
+      <div class="bar"><i id="day-bar"></i></div>
+    </div>
     <div id="items"></div>
     <div class="btnrow">
-      <button class="btn primary" onclick="openCard()">🖼 인증 카드 만들기</button>
+      <button class="btn primary" onclick="openCard()">인증 카드 만들기</button>
     </div>
     <div class="note">체크박스를 누르면 체크, 항목 이름을 누르면 메모를 쓸 수 있습니다<br>10개를 모두 체크하면 인증 카드가 자동으로 열립니다</div>
   </div>
@@ -323,22 +801,22 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     <div class="daytitle">10 CORE 항목 설정</div>
     <div class="pctbig">나의 10가지 실천 항목을 수정할 수 있습니다</div>
     <div id="set-list"></div>
-    <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">연속 기록(챌린지) 설정</div>
-    <div class="set-item"><span>기준</span><select id="set-mode" style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--ink);font-family:inherit">
+    <div class="daytitle sec">연속 기록(챌린지) 설정</div>
+    <div class="set-item"><span>기준</span><select id="set-mode">
       <option value="any">1개 이상 체크하면 인정 (기본)</option>
       <option value="full">10개 모두 체크한 날만 인정 (100%)</option>
     </select></div>
     <div class="set-item"><span>목표</span><input id="set-goal" type="number" min="1" max="999" inputmode="numeric"></div>
 
-    <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 단계 편집</div>
-    <div class="set-item"><span style="width:44px">소비자</span><input id="set-constages" placeholder="데모,구매"></div>
-    <div class="set-item"><span style="width:44px">파트너</span><input id="set-spostages" placeholder="제품체험,사업설명,Tool,사업시작요령"></div>
-    <div class="note" style="text-align:left;margin:0 0 4px">쉼표(,)로 단계를 구분해서 적어주세요. 순서대로 파이프라인·리스트에 표시됩니다</div>
+    <div class="daytitle sec">소비자 · 파트너 단계 편집</div>
+    <div class="set-item wide"><span>소비자</span><input id="set-constages" placeholder="데모,구매"></div>
+    <div class="set-item wide"><span>파트너</span><input id="set-spostages" placeholder="제품체험,사업설명,Tool,사업시작요령"></div>
+    <div class="note left" style="margin-top:4px">쉼표(,)로 단계를 구분해서 적어주세요. 순서대로 파이프라인·리스트에 표시됩니다</div>
 
     <div class="btnrow">
       <button class="btn primary" onclick="saveSettings()">저장하기</button>
     </div>
-    <div class="note" style="margin-top:4px">구글시트 연동과 데이터 백업·복원은 <a onclick="openConnect()" style="text-decoration:underline;cursor:pointer;color:var(--accent)">연동 · 백업</a> 화면에서 관리합니다</div>
+    <div class="note">구글시트 연동과 데이터 백업·복원은 <a onclick="openConnect()" style="text-decoration:underline;cursor:pointer">연동 · 백업</a> 화면에서 관리합니다</div>
   </div>
 
   <div class="view" id="view-connect">
@@ -346,8 +824,8 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     <div class="daytitle">연동 · 백업</div>
     <div class="pctbig">구글시트 연동과 데이터 백업·복원을 관리합니다</div>
 
-    <div class="daytitle" style="font-size:16px;margin-top:0;margin-bottom:8px">데이터 백업 · 복원</div>
-    <textarea id="bk" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;color:var(--ink);font-family:monospace;min-height:80px;resize:vertical" placeholder="[백업 코드 만들기]를 누르면 전체 기록이 코드로 만들어집니다.
+    <div class="daytitle sec first">데이터 백업 · 복원</div>
+    <textarea id="bk" class="fld mono" placeholder="[백업 코드 만들기]를 누르면 전체 기록이 코드로 만들어집니다.
 다른 기기에서 복원하려면 그 코드를 여기에 붙여넣고 [복원하기]를 누르세요."></textarea>
     <div class="btnrow" style="margin-top:8px">
       <button class="btn ghost" onclick="makeBackup()">백업 코드 만들기</button>
@@ -355,15 +833,16 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     </div>
     <div class="btnrow" style="margin-top:8px">
       <button class="btn ghost" onclick="document.getElementById('bk-file').click()">파일에서 불러오기</button>
-      <button class="btn primary" onclick="restoreBackup()">복원하기</button>
+      <button class="btn warn" onclick="restoreBackup()">복원하기</button>
     </div>
+    <div class="note left" style="margin-top:8px">복원하면 이 기기의 현재 기록이 백업 데이터로 교체됩니다</div>
     <input type="file" id="bk-file" accept=".json,application/json,text/plain" style="display:none" onchange="loadBackupFile(this)">
 
     <div id="sync-box">
-      <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">구글 시트 연동 (선택)</div>
+      <div class="daytitle sec">구글 시트 연동 (선택)</div>
       <div class="set-item"><span>이름</span><input id="sync-name" maxlength="20" placeholder="시트에 기록될 내 이름"></div>
       <div class="set-item"><span>주소</span><input id="sync-url" placeholder="앱스 스크립트 웹앱 주소 (https://script.google.com/...)"></div>
-      <div class="set-item"><span>전송</span><select id="sync-auto" style="flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--ink);font-family:inherit">
+      <div class="set-item"><span>전송</span><select id="sync-auto">
         <option value="1">체크할 때마다 자동으로 보내기</option>
         <option value="0">수동으로만 보내기</option>
       </select></div>
@@ -375,9 +854,9 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     </div>
 
     <div id="crm-sync-box">
-      <div class="daytitle" style="font-size:16px;margin-top:22px;margin-bottom:8px">소비자 · 파트너 구글시트 연동 (선택)</div>
-      <div class="note" style="text-align:left;margin:0 0 8px">기본적으로 위 일일기록 주소와 같은 시트를 씁니다. 따로 다른 시트를 쓰고 싶을 때만 체크를 해제하고 주소를 입력하세요</div>
-      <label style="display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:14px;color:var(--ink)">
+      <div class="daytitle sec">소비자 · 파트너 구글시트 연동 (선택)</div>
+      <div class="note left">기본적으로 위 일일기록 주소와 같은 시트를 씁니다. 따로 다른 시트를 쓰고 싶을 때만 체크를 해제하고 주소를 입력하세요</div>
+      <label class="checkrow">
         <input type="checkbox" id="crm-sync-same" checked onchange="toggleCrmSame()"> 일일기록과 같은 주소 사용
       </label>
       <div class="set-item" id="crm-sync-url-row" style="display:none"><span>주소</span><input id="crm-sync-url" placeholder="CRM용 앱스 스크립트 웹앱 주소 (https://script.google.com/...)"></div>
@@ -388,7 +867,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div class="note" id="crm-sync-status" style="margin-top:8px">위 일일기록 주소를 저장하면 자동으로 함께 연동됩니다</div>
     </div>
 
-    <div class="btnrow">
+    <div class="btnrow" style="margin-top:32px">
       <button class="btn primary" onclick="saveSettings()">저장하기</button>
     </div>
   </div>
@@ -396,23 +875,23 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   <div class="view" id="view-ask">
     <button class="back" onclick="showCal()">‹ 달력으로</button>
     <div class="daytitle">문의 · 오류 신고</div>
-    <div class="note" style="text-align:left;margin:0 0 10px">불편한 점이나 안 되는 기능을 적어 보내주세요.<br>어떤 기기·브라우저에서 생긴 문제인지는 자동으로 함께 전달됩니다.<br>화면 캡처를 첨부하면 원인을 훨씬 빨리 찾을 수 있습니다.</div>
+    <div class="note left" style="margin:4px 0 20px">불편한 점이나 안 되는 기능을 적어 보내주세요.<br>어떤 기기·브라우저에서 생긴 문제인지는 자동으로 함께 전달됩니다.<br>화면 캡처를 첨부하면 원인을 훨씬 빨리 찾을 수 있습니다.</div>
     <div class="set-item askrow"><span>이름</span><input id="ask-name" maxlength="20" placeholder="누가 보냈는지 (선택)"></div>
     <div class="set-item askrow"><span>연락</span><input id="ask-contact" maxlength="60" placeholder="답을 받을 카톡 ID·이메일 (선택)"></div>
-    <textarea id="ask-msg" maxlength="1000" style="width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;min-height:90px;resize:vertical" placeholder="예: 아이폰 사파리에서 체크박스를 눌러도 반응이 없습니다"></textarea>
+    <textarea id="ask-msg" class="fld" maxlength="1000" style="margin-top:4px" placeholder="예: 아이폰 사파리에서 체크박스를 눌러도 반응이 없습니다"></textarea>
     <input type="file" id="ask-file" accept="image/*" style="display:none" onchange="pickShot(this)">
-    <div class="btnrow" style="margin-top:8px">
-      <button class="btn ghost" onclick="document.getElementById('ask-file').click()">📷 캡처 첨부</button>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="btn ghost" onclick="document.getElementById('ask-file').click()">캡처 첨부</button>
       <button class="btn primary" id="ask-btn" onclick="sendInquiry()">문의 보내기</button>
     </div>
-    <div id="shot-box" style="display:none;margin-top:10px">
+    <div id="shot-box" style="display:none;margin-top:12px">
       <img id="shot-img" alt="첨부한 캡처" style="width:100%;max-height:220px;object-fit:contain;border:1px solid var(--line);border-radius:10px;display:block;background:var(--card)">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">
-        <span id="shot-info" style="font-size:12px;color:var(--sub)"></span>
-        <button onclick="clearShot()" style="background:none;border:none;color:var(--danger);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:2px 0">첨부 취소</button>
+        <span id="shot-info" style="font-size:12px;color:var(--text-muted)"></span>
+        <button onclick="clearShot()" style="background:none;border:none;color:var(--danger);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:8px 0;min-height:36px">첨부 취소</button>
       </div>
     </div>
-    <div class="note" id="ask-status" style="margin-top:8px"></div>
+    <div class="note" id="ask-status" style="margin-top:12px"></div>
   </div>
 
 </div>
@@ -422,7 +901,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     <img id="preview-img" alt="10코어 인증 카드">
     <div class="btnrow">
       <button class="btn ghost" onclick="document.getElementById('modal').classList.remove('on')">닫기</button>
-      <button class="btn primary" onclick="shareCard()">📤 사진 저장 / 공유</button>
+      <button class="btn primary" onclick="shareCard()">사진 저장 / 공유</button>
     </div>
     <div class="note">버튼을 누르면 공유 창이 열립니다 → "이미지 저장"을 선택하세요<br>안 열리면 이미지를 길게 눌러 저장하거나, 링크를 사파리·크롬에서 열어보세요</div>
   </div>
@@ -433,14 +912,14 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     <img id="gpreview-img" alt="감사일기 이미지">
     <div class="btnrow">
       <button class="btn ghost" onclick="document.getElementById('gmodal').classList.remove('on')">닫기</button>
-      <button class="btn primary" onclick="shareGratCard()">📤 사진 저장 / 공유</button>
+      <button class="btn primary" onclick="shareGratCard()">사진 저장 / 공유</button>
     </div>
     <div class="note">버튼을 누르면 공유 창이 열립니다 → "이미지 저장"을 선택하세요<br>안 열리면 이미지를 길게 눌러 저장해 보세요</div>
   </div>
 </div>
 
 <div class="modal" id="cfm" style="z-index:60">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:360px">
     <div style="font-size:15px;line-height:1.7" id="cfm-msg"></div>
     <div class="btnrow">
       <button class="btn ghost" onclick="cfmNo()">취소</button>
@@ -451,29 +930,29 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 
 <div class="modal" id="pmodal" onclick="if(event.target===this)closePersonEditor()">
   <div class="modal-box">
-    <div class="daytitle" id="pm-title" style="font-size:17px;margin-bottom:10px">새 소비자</div>
+    <div class="modal-title" id="pm-title">새 소비자</div>
     <div style="padding:0">
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:0 0 5px">이름</label>
-      <input id="pm-name" maxlength="20" placeholder="이름" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">연락처</label>
-      <input id="pm-contact" maxlength="40" placeholder="전화번호·카톡ID 등 (선택)" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">단계</label>
-      <select id="pm-stage" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit"></select>
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">다음 액션일</label>
-      <input id="pm-next" type="date" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">메모</label>
-      <textarea id="pm-note" placeholder="상황, 다음에 할 일 등" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;resize:vertical;min-height:70px"></textarea>
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">회원번호 (있으면 로스맵에 실선으로 표시)</label>
-      <input id="pm-memberno" maxlength="20" placeholder="예: 12345678 (없으면 비워두세요)" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit">
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:12px 0 5px">연결 대상 (누구 라인인지 · 기본은 나)</label>
-      <select id="pm-parent" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit"></select>
+      <label class="fld-label" for="pm-name">이름</label>
+      <input id="pm-name" class="fld" maxlength="20" placeholder="이름">
+      <label class="fld-label" for="pm-contact">연락처</label>
+      <input id="pm-contact" class="fld" maxlength="40" placeholder="전화번호·카톡ID 등 (선택)">
+      <label class="fld-label" for="pm-stage">단계</label>
+      <select id="pm-stage" class="fld"></select>
+      <label class="fld-label" for="pm-next">다음 액션일</label>
+      <input id="pm-next" class="fld" type="date">
+      <label class="fld-label" for="pm-note">메모</label>
+      <textarea id="pm-note" class="fld" placeholder="상황, 다음에 할 일 등"></textarea>
+      <label class="fld-label" for="pm-memberno">회원번호 (있으면 로스맵에 실선으로 표시)</label>
+      <input id="pm-memberno" class="fld" maxlength="20" placeholder="예: 12345678 (없으면 비워두세요)">
+      <label class="fld-label" for="pm-parent">연결 대상 (누구와 이어지는지 · 기본은 나)</label>
+      <select id="pm-parent" class="fld"></select>
 
-      <label style="display:block;font-size:12px;color:var(--sub);font-weight:600;margin:16px 0 5px">활동 내역 (날짜별 기록 · 10코어 체크와 자동연동)</label>
-      <div id="pm-history" style="display:flex;flex-direction:column;gap:7px;max-height:180px;overflow:auto;margin-bottom:8px;padding-right:2px"></div>
-      <div style="display:flex;gap:6px">
-        <input id="pm-h-date" type="date" style="flex:0 0 128px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;color:var(--ink);font-family:inherit">
-        <input id="pm-h-content" placeholder="내용 (예: 정수기 구매 상담)" style="flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--ink);font-family:inherit">
-        <button type="button" onclick="addHistoryEntry()" style="flex:0 0 auto;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">추가</button>
+      <label class="fld-label group">활동 내역 (날짜별 기록 · 10코어 체크와 자동연동)</label>
+      <div id="pm-history"></div>
+      <div class="pm-hrow">
+        <input id="pm-h-date" class="fld" type="date">
+        <input id="pm-h-content" class="fld" placeholder="내용 (예: 정수기 구매 상담)">
+        <button type="button" class="btn-inline" onclick="addHistoryEntry()">추가</button>
       </div>
     </div>
     <div class="btnrow">
@@ -484,7 +963,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 </div>
 
 <div class="modal" id="rmpop" style="z-index:58" onclick="if(event.target===this)closeRmPopup()">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:380px">
     <div style="font-size:16px;font-weight:700;margin-bottom:2px" id="rmpop-body"></div>
     <div class="btnrow">
       <button class="btn ghost" onclick="closeRmPopup()">닫기</button>
@@ -492,7 +971,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const DEFAULT_ITEMS = [
@@ -708,9 +1187,9 @@ function renderCal(){
   const tk2 = keyOf(today.getFullYear(),today.getMonth(),today.getDate());
   const todayDone = qualifies(tk2);
   let right = cy.day+' / '+cy.goal+'일';
-  if(cy.laps>0) right = '🏆 '+cy.laps+'바퀴 완주 · '+right;
+  if(cy.laps>0) right = cy.laps+'바퀴 완주 · '+right;
   if(!todayDone) right += ' · 오늘 아직 미완료';
-  let left = '🔥 연속 '+cs+'일째';
+  let left = '연속 <span class="kpi">'+cs+'</span>일째';
   if(cy.lap>1) left += ' ('+cy.lap+'바퀴째)';
   document.getElementById("streak").innerHTML =
     '<div class="top"><b>'+left+'</b><span>'+right+'</span></div>'
@@ -777,7 +1256,7 @@ function renderItems(){
       +   '<div class="chkhit" data-act="toggle" data-i="'+i+'"><div class="chk">'+(d.c[i]?"✓":"")+'</div></div>'
       +   '<div class="imain" data-act="expand" data-i="'+i+'">'
       +     '<div class="iname">'+esc(name)+'</div>'
-      +     (LINK_ITEMS[i] ? peopleChips(d, i) : (note? '<div class="inote">✎ '+esc(note)+'</div>':''))
+      +     (LINK_ITEMS[i] ? peopleChips(d, i) : (note? '<div class="inote">'+esc(note)+'</div>':''))
       +   '</div>'
       +   '<div class="iarrow" data-act="expand" data-i="'+i+'">›</div>'
       + '</div>'
@@ -835,7 +1314,8 @@ function entriesHtml(d, i){
 // 이미 등록된 사람 이름을 자동완성으로 띄워 오타로 같은 사람이 두 번 생기는 걸 줄인다.
 function peopleDatalists(){
   function opts(kind){
-    return state.people.filter(function(p){ return p.kind===kind && p.name; })
+    // 소비자·파트너 구분 없이 한 사람은 한 명으로 본다.
+    return state.people.filter(function(p){ return p.name; })
       .map(function(p){ return '<option value="'+escAttr(p.name)+'">'; }).join("");
   }
   return '<datalist id="dl-consumer">'+opts("consumer")+'</datalist><datalist id="dl-sponsor">'+opts("sponsor")+'</datalist>';
@@ -932,7 +1412,7 @@ function toggle(ev,i){
     const p = pctOf(selKey);
     if(p===100 && !autoSaved[selKey]){
       autoSaved[selKey] = true;
-      toast("🎉 100% 달성! 인증 카드를 엽니다");
+      toast("100% 달성! 인증 카드를 엽니다");
       setTimeout(openCard, 700);
     }
   }catch(e){
@@ -961,8 +1441,8 @@ function updatePct(){
   const ds = document.getElementById("day-streak");
   if(qualifies(selKey)){
     const cy = cycleOf(streakUpTo(selKey));
-    let txt = "🔥 DAY "+cy.day;
-    if(cy.day===cy.goal) txt = "🏆 "+cy.goal+"일 완주!";
+    let txt = "DAY "+cy.day;
+    if(cy.day===cy.goal) txt = cy.goal+"일 완주!";
     if(cy.lap>1) txt += " · "+cy.lap+"바퀴째";
     ds.textContent = txt;
   } else ds.textContent = "";
@@ -1143,10 +1623,10 @@ function renderGratCal(){
   const cs = gratCurrentStreak();
   const cy = cycleOf(cs);
   let right = cy.day+' / '+cy.goal+'일';
-  if(cy.laps>0) right = '🏆 '+cy.laps+'바퀴 완주 · '+right;
+  if(cy.laps>0) right = cy.laps+'바퀴 완주 · '+right;
   if(gratCount(tKey)===0) right += ' · 오늘 아직 미작성';
   document.getElementById("g-streak").innerHTML =
-    '<div class="top"><b>🙏 연속 '+cs+'일째 감사</b><span>'+right+'</span></div>'
+    '<div class="top"><b>연속 <span class="kpi">'+cs+'</span>일째 감사</b><span>'+right+'</span></div>'
     +'<div class="goalbar"><i style="width:'+Math.min(100, cy.day/cy.goal*100)+'%"></i></div>';
 }
 function moveGratMonth(n){ gCur = new Date(gCur.getFullYear(), gCur.getMonth()+n, 1); renderGratCal(); }
@@ -1188,7 +1668,7 @@ function updateGratHead(){
   const ds = document.getElementById("gday-streak");
   if(gratCount(gKey)>0){
     const cy = cycleOf(gratStreakUpTo(gKey));
-    ds.textContent = cy.day===cy.goal ? ("🏆 "+cy.goal+"일 완주!") : ("🙏 DAY "+cy.day);
+    ds.textContent = cy.day===cy.goal ? (cy.goal+"일 완주!") : ("DAY "+cy.day);
   }else ds.textContent = "";
 }
 function gratPersist(){ persist(); if(gKey) syncPush(gKey); }
@@ -1615,8 +2095,56 @@ function normalizePerson(p){
     stage: stage, note: p.note || "", nextDate: p.nextDate || "",
     parentId: p.parentId || null, memberNo: p.memberNo || "", history: history,
     autoCreated: !!p.autoCreated,
+    // 한 사람이 소비자이면서 파트너일 수 있다. 두 탭 모두에 보이게 역할을 함께 기록한다.
+    roles: (function(){ const r = Array.isArray(p.roles) ? p.roles.filter(function(v){ return v==="consumer"||v==="sponsor"; }) : []; if(r.indexOf(kind)===-1) r.push(kind); return r; })(),
+    distinct: !!p.distinct,
     createdAt: p.createdAt || Date.now(), updatedAt: p.updatedAt || Date.now()
   };
+}
+function hasRole(p, kind){ return p.kind===kind || (Array.isArray(p.roles) && p.roles.indexOf(kind)>=0); }
+function nameKey(n){ return String(n||"").replace(/\s+/g,"").toLowerCase(); }
+// 같은 이름은 소비자·파트너 상관없이 한 사람으로 찾는다(동명이인으로 따로 둔 사람은 제외).
+function findPersonByName(name){
+  const k = nameKey(name);
+  if(!k) return null;
+  return state.people.find(function(x){ return nameKey(x.name)===k && !x.distinct; }) || null;
+}
+// 예전에 소비자·파트너로 따로 생긴 같은 이름의 사람을 하나로 합친다.
+// 회원번호·연결·하위 라인·활동 내역·메모는 모두 합쳐서 남긴다.
+function mergeSameNamePeople(){
+  const groups = {};
+  state.people.forEach(function(p){
+    const k = nameKey(p.name);
+    if(!k || p.distinct) return;
+    (groups[k] = groups[k] || []).push(p);
+  });
+  const touched = [];
+  Object.keys(groups).forEach(function(k){
+    const g = groups[k];
+    if(g.length<2) return;
+    function score(p){
+      return (p.memberNo?100:0) + state.people.filter(function(x){ return x.parentId===p.id; }).length*10
+        + (p.parentId?5:0) + (p.autoCreated?0:3) + (p.kind==="sponsor"?1:0);
+    }
+    g.sort(function(a,b){ return score(b)-score(a) || (a.createdAt||0)-(b.createdAt||0); });
+    const keep = g[0];
+    g.slice(1).forEach(function(d){
+      ["contact","memberNo","nextDate"].forEach(function(f){ if(!keep[f] && d[f]) keep[f] = d[f]; });
+      if(d.note && keep.note.indexOf(d.note)===-1) keep.note = keep.note ? keep.note+"\n"+d.note : d.note;
+      if(!keep.parentId && d.parentId && d.parentId!==keep.id && !wouldCycle(keep.id, d.parentId)) keep.parentId = d.parentId;
+      (d.roles||[d.kind]).concat([d.kind]).forEach(function(r){ if(keep.roles.indexOf(r)===-1) keep.roles.push(r); });
+      const have = {};
+      keep.history.forEach(function(h){ have[h.date+"|"+h.source+"|"+h.content] = 1; });
+      (d.history||[]).forEach(function(h){ if(!have[h.date+"|"+h.source+"|"+h.content]) keep.history.push(h); });
+      state.people.forEach(function(x){ if(x.parentId===d.id) x.parentId = keep.id; });
+      if(keep.parentId===d.id) keep.parentId = null;
+      keep.autoCreated = keep.autoCreated && d.autoCreated;
+      state.people = state.people.filter(function(x){ return x!==d; });
+    });
+    keep.updatedAt = Date.now();
+    touched.push(keep.id);
+  });
+  return touched;
 }
 function personById(id){ return state.people.find(function(x){ return x.id===id; }); }
 function descendantIds(id){
@@ -1649,10 +2177,12 @@ function legNameOf(p){
 
 // ---- 편집 모달 ----
 let pmEditing = null;
+let pmInsert = null; // 로스맵 선 위 ＋로 두 사람 사이에 끼워 넣을 때 { parentId, childId }
 let pmKind = "consumer";
 function openPersonEditor(id, kind){
   flushPersist();
   pmEditing = id;
+  pmInsert = null;
   const p = id ? personById(id) : null;
   pmKind = p ? p.kind : kind;
   document.getElementById("pm-title").textContent = (p? "수정: ":"새 ") + (pmKind==="sponsor"?"파트너":"소비자");
@@ -1661,13 +2191,13 @@ function openPersonEditor(id, kind){
   document.getElementById("pm-next").value = p ? p.nextDate : "";
   document.getElementById("pm-note").value = p ? p.note : "";
   document.getElementById("pm-memberno").value = p ? (p.memberNo||"") : "";
-  const stages = stagesFor(pmKind);
-  document.getElementById("pm-stage").innerHTML = stages.map(function(s,i){ return '<option value="'+i+'">'+esc(s)+'</option>'; }).join("");
-  document.getElementById("pm-stage").value = p ? Math.min(p.stage, stages.length-1) : 0;
+  fillPmStages(p ? p.stage : 0);
+  // 로스맵은 회원 간 네트워크라 파트너뿐 아니라 소비자 아래에도 이어 붙일 수 있다.
   const excluded = id ? [id].concat(descendantIds(id)) : [];
-  const sponsors = state.people.filter(function(x){ return x.kind==="sponsor" && excluded.indexOf(x.id)===-1; });
+  const cands = state.people.filter(function(x){ return excluded.indexOf(x.id)===-1; })
+    .sort(function(a,b){ return (a.name||"").localeCompare(b.name||"", "ko"); });
   const parentSel = document.getElementById("pm-parent");
-  parentSel.innerHTML = '<option value="">나 (기본)</option>' + sponsors.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name||"(이름없음)")+'</option>'; }).join("");
+  parentSel.innerHTML = '<option value="">나 (기본)</option>' + cands.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name||"(이름없음)")+' · '+(s.kind==="sponsor"?"파트너":"소비자")+'</option>'; }).join("");
   parentSel.value = p && p.parentId ? p.parentId : "";
   document.getElementById("pm-del").style.display = p ? "block" : "none";
   document.getElementById("pm-h-date").value = todayKey();
@@ -1675,18 +2205,36 @@ function openPersonEditor(id, kind){
   renderPersonHistory(p || { history: [] });
   document.getElementById("pmodal").classList.add("on");
 }
-function closePersonEditor(){ document.getElementById("pmodal").classList.remove("on"); }
-function savePersonFromEditor(){
+function fillPmStages(sel){
+  const stages = stagesFor(pmKind);
+  const el = document.getElementById("pm-stage");
+  el.innerHTML = stages.map(function(s,i){ return '<option value="'+i+'">'+esc(s)+'</option>'; }).join("");
+  el.value = Math.max(0, Math.min(sel||0, stages.length-1));
+}
+function closePersonEditor(){ pmInsert = null; document.getElementById("pmodal").classList.remove("on"); }
+function savePersonFromEditor(forceNew){
   const name = document.getElementById("pm-name").value.trim();
   if(!name){ toast("이름을 입력해 주세요"); return; }
   const chosenParent = document.getElementById("pm-parent").value || null;
+  // 새로 추가하려는 이름이 이미 있으면, 새로 만들지 않고 기존 사람을 그 자리에 연결할지 묻는다.
+  if(!pmEditing && !forceNew){
+    const ex = findPersonByName(name);
+    if(ex){
+      const upName = chosenParent ? ((personById(chosenParent)||{}).name||"") : "나";
+      askConfirm("'"+ex.name+"'님이 이미 등록되어 있습니다. 새로 만들지 않고 기존 '"+ex.name+"'님을 "+upName+"에게 연결할까요?", function(){
+        useExistingPerson(ex, chosenParent);
+      }, { yes:"기존 사람 연결", no:"동명이인으로 새로 추가", onNo:function(){ savePersonFromEditor(true); } });
+      return;
+    }
+  }
   if(pmEditing && chosenParent && wouldCycle(pmEditing, chosenParent)){
     toast("자기 자신의 하위 라인은 상위로 연결할 수 없습니다");
     return;
   }
   let p = pmEditing ? personById(pmEditing) : null;
   const isNew = !p;
-  if(isNew){ p = normalizePerson({ kind: pmKind }); state.people.push(p); }
+  if(isNew){ p = normalizePerson({ kind: pmKind, distinct: !!forceNew && !!findPersonByName(name) }); state.people.push(p); }
+  p.kind = pmKind;
   p.name = name;
   p.contact = document.getElementById("pm-contact").value.trim();
   p.stage = parseInt(document.getElementById("pm-stage").value,10) || 0;
@@ -1696,6 +2244,12 @@ function savePersonFromEditor(){
   p.parentId = chosenParent;
   p.autoCreated = false; // 직접 저장한 사람은 자동 정리 대상에서 제외
   p.updatedAt = Date.now();
+  // 선 위 ＋로 추가한 경우: 원래 아래에 있던 사람을 새 사람 밑으로 옮긴다.
+  if(isNew && pmInsert && pmInsert.childId){
+    const child = personById(pmInsert.childId);
+    if(child && child.id!==p.id && !wouldCycle(child.id, p.id)){ child.parentId = p.id; child.updatedAt = Date.now(); crmPush(child.id); }
+    pmInsert = null;
+  }
   persist();
   crmPush(p.id);
   if(isNew){
@@ -1709,6 +2263,25 @@ function savePersonFromEditor(){
     toast("저장되었습니다");
   }
   refreshCurrentPeopleView();
+}
+function useExistingPerson(ex, parentId){
+  if(parentId && (parentId===ex.id || wouldCycle(ex.id, parentId))){
+    toast(ex.name+"님 아래에 있는 사람에게는 연결할 수 없습니다");
+    return;
+  }
+  if(!hasRole(ex, pmKind)) ex.roles.push(pmKind);
+  ex.parentId = parentId || null;
+  if(pmInsert && pmInsert.childId){
+    const child = personById(pmInsert.childId);
+    if(child && child.id!==ex.id && !wouldCycle(child.id, ex.id)){ child.parentId = ex.id; child.updatedAt = Date.now(); crmPush(child.id); }
+  }
+  pmInsert = null;
+  ex.updatedAt = Date.now();
+  persist(); crmPush(ex.id);
+  closePersonEditor();
+  refreshCurrentPeopleView();
+  const upName = parentId ? ((personById(parentId)||{}).name||"") : "나";
+  toast(ex.name+"님을 "+upName+"에게 연결했습니다");
 }
 function deletePersonFromEditor(){
   if(!pmEditing) return;
@@ -1801,8 +2374,9 @@ function syncDayToPeople(key, silent){
       const name = (e.name||"").trim();
       if(!name) return;
       const content = linkedContent(e, cfg);
-      let p = state.people.find(function(x){ return x.kind===cfg.kind && (x.name||"").trim().toLowerCase()===name.toLowerCase(); });
+      let p = findPersonByName(name);
       if(!p){ p = normalizePerson({ kind:cfg.kind, name:name, autoCreated:true }); state.people.push(p); changed = true; }
+      if(!hasRole(p, cfg.kind)){ p.roles.push(cfg.kind); p.updatedAt = now; changed = true; touched[p.id] = 1; }
       p.history = p.history || [];
       let h = p.history.find(function(x){ return x.date===key && x.source===cfg.source && x.entryId===e.id; });
       // 예전 버전에서 만들어진 기록(entryId 없음)은 그대로 이어받는다.
@@ -1817,7 +2391,7 @@ function syncDayToPeople(key, silent){
     });
     // 지워졌거나 이름이 바뀐 줄의 예전 기록은 해당 사람의 활동 내역에서 뺀다.
     state.people.forEach(function(p){
-      if(p.kind!==cfg.kind || !Array.isArray(p.history)) return;
+      if(!Array.isArray(p.history)) return;
       const before = p.history.length;
       p.history = p.history.filter(function(x){ return !(x.date===key && x.source===cfg.source && !keep[x.id]); });
       if(p.history.length!==before){ changed = true; touched[p.id] = 1; }
@@ -1916,7 +2490,7 @@ function personRowHtml(p, q){
     +       (p.memberNo? '<span class="next">회원 '+esc(p.memberNo)+'</span>':'')
     +     '</div>'
     +     (p.note? '<div class="inote">'+esc(p.note)+'</div>':'')
-    +     (hit? '<div class="inote">🔍 '+esc(hit.date)+' · '+esc(hit.content)+'</div>':'')
+    +     (hit? '<div class="inote hit">'+esc(hit.date)+' · '+esc(hit.content)+'</div>':'')
     +   '</div>'
     +   '<div class="iarrow">›</div>'
     + '</div>'
@@ -1928,8 +2502,8 @@ function renderConsumers(){
     .concat(stages.map(function(s,i){ return '<button class="chip'+(conFilter===String(i)?" on":"")+'" onclick="setConFilter(\''+i+'\')">'+esc(s)+'</button>'; }));
   document.getElementById("con-chips").innerHTML = chips.join("");
   const q = (document.getElementById("con-search").value||"").trim().toLowerCase();
-  let list = state.people.filter(function(p){ return p.kind==="consumer"; });
-  if(conFilter!=="all") list = list.filter(function(p){ return String(p.stage)===conFilter; });
+  let list = state.people.filter(function(p){ return hasRole(p,"consumer"); });
+  if(conFilter!=="all") list = list.filter(function(p){ return p.kind==="consumer" && String(p.stage)===conFilter; });
   if(q) list = list.filter(function(p){ return matchesQuery(p,q); });
   list.sort(function(a,b){ return (a.stage-b.stage) || (b.updatedAt-a.updatedAt); });
   const el = document.getElementById("con-list");
@@ -1944,10 +2518,10 @@ function renderConsumers(){
 function renderSponsors(){
   const stages = state.sponsorStages;
   const q = (document.getElementById("spo-search").value||"").trim().toLowerCase();
-  let list = state.people.filter(function(p){ return p.kind==="sponsor"; });
+  let list = state.people.filter(function(p){ return hasRole(p,"sponsor"); });
   if(q) list = list.filter(function(p){ return matchesQuery(p,q); });
   const cols = stages.map(function(name,i){
-    const items = list.filter(function(p){ return p.stage===i; });
+    const items = list.filter(function(p){ return Math.min(p.stage, stages.length-1)===i; });
     const cards = items.map(function(p){
       const leg = legNameOf(p);
       const hit = q ? searchHit(p,q) : null;
@@ -1956,7 +2530,7 @@ function renderSponsors(){
         + '<div class="kleg">'+esc(leg)+'</div>'
         + (p.memberNo? '<div class="kleg">회원 '+esc(p.memberNo)+'</div>':'')
         + (p.nextDate? '<div class="kleg">다음 액션 '+esc(p.nextDate)+'</div>':'')
-        + (hit? '<div class="kleg">🔍 '+esc(hit.date)+' · '+esc(hit.content)+'</div>':'')
+        + (hit? '<div class="kleg hit">'+esc(hit.date)+' · '+esc(hit.content)+'</div>':'')
         + '</div>';
     }).join("") || '<div style="font-size:12px;color:var(--sub);padding:10px 2px">비어있음</div>';
     return '<div class="kcol"><h3><b>'+esc(name)+'</b><span>'+items.length+'명</span></h3>'+cards+'</div>';
@@ -1991,7 +2565,7 @@ function layoutTree(byParent){
   const roots = byParent["__root__"] || [];
   if(!roots.length) return [];
   const totalLeaves = roots.reduce(function(s,r){ return s+countLeaves(r,byParent); }, 0) || 1;
-  const RSTEP = 92;
+  const RSTEP = 100;
   const nodes = [];
   function place(node, angleStart, angleSpan, depth, parentXY){
     const angle = angleStart + angleSpan/2;
@@ -2024,40 +2598,312 @@ function renderRoadmap(){
   const byParent = buildPeopleTree();
   const nodes = layoutTree(byParent);
   const wrap = document.getElementById("rm-wrap");
-  if(!nodes.length){
-    wrap.innerHTML = '<div class="rm-empty">아직 등록된 사람이 없습니다<br>아래 ＋ 버튼으로 소비자·파트너를 추가하면<br>여기에 라인이 뻗어나갑니다</div>';
-    return;
-  }
-  let maxR = 0;
-  nodes.forEach(function(n){ const r = Math.sqrt(n.x*n.x+n.y*n.y); if(r>maxR) maxR=r; });
-  const half = maxR + 70;
-  const size = half*2;
-  let svg = '<svg viewBox="'+(-half)+' '+(-half)+' '+size+' '+size+'" width="'+Math.max(size,300)+'" height="'+Math.max(size,300)+'" style="display:block;margin:0 auto">';
+  // 실제로 사람이 있는 범위만큼만 그려서 빈 공간을 줄인다(사람이 없어도 '나'는 그린다).
+  let minX=-80, maxX=80, minY=-70, maxY=70;
+  nodes.forEach(function(n){ minX=Math.min(minX,n.x); maxX=Math.max(maxX,n.x); minY=Math.min(minY,n.y); maxY=Math.max(maxY,n.y); });
+  const PADV = 44;
+  minX-=PADV; minY-=PADV; maxX+=PADV; maxY+=PADV;
+  const vw = maxX-minX, vh = maxY-minY;
+  // 확대/축소: rmZoom 이 0 이면 지도 전체가 한 화면에 들어오게 맞춘다.
+  const avail = Math.max(260, wrap.clientWidth - 22);
+  const fitZ = Math.min(1.3, avail/vw, 560/vh);
+  const z = rmZoom===0 ? fitZ : rmZoom;
+  let svg = '<svg viewBox="'+minX+' '+minY+' '+vw+' '+vh+'" width="'+Math.round(vw*z)+'" height="'+Math.round(vh*z)+'" style="display:block;margin:0 auto" data-base="'+vw+'">';
   nodes.forEach(function(n){
     const dashed = !n.person.memberNo;
-    svg += '<line x1="'+n.px+'" y1="'+n.py+'" x2="'+n.x+'" y2="'+n.y+'" stroke="'+(dashed? "var(--gold)":"var(--line)")+'" stroke-width="2" stroke-dasharray="'+(dashed? "4,4":"0")+'" />';
+    svg += '<line x1="'+n.px+'" y1="'+n.py+'" x2="'+n.x+'" y2="'+n.y+'" stroke="'+(dashed? "var(--rm-dash)":"var(--rm-line)")+'" stroke-width="2" stroke-dasharray="'+(dashed? "4,4":"0")+'" />';
   });
-  svg += '<g class="rm-node" onclick="openRmCenter()"><circle cx="0" cy="0" r="27" fill="var(--ink)"/><text x="0" y="5" text-anchor="middle" fill="var(--bg)">나</text></g>';
+  // 선 가운데의 ＋(두 사람 사이에 새 사람 넣기) / −(연결 끊기) 버튼. 이미지 저장 때는 빠진다.
+  nodes.forEach(function(n){
+    const mx = (n.px+n.x)/2, my = (n.py+n.y)/2;
+    const id = n.person.id;
+    if(!n.person.parentId){
+      svg += '<g class="rm-ctl" onclick="rmInsert(\''+id+'\')"><circle cx="'+mx+'" cy="'+my+'" r="11" /><text x="'+mx+'" y="'+(my+5)+'" text-anchor="middle">+</text></g>';
+    }else{
+      svg += '<g class="rm-ctl">'
+        + '<rect x="'+(mx-24)+'" y="'+(my-11)+'" width="48" height="22" rx="11" />'
+        + '<g onclick="rmInsert(\''+id+'\')"><rect class="hit" x="'+(mx-24)+'" y="'+(my-11)+'" width="24" height="22" /><text x="'+(mx-12)+'" y="'+(my+5)+'" text-anchor="middle">+</text></g>'
+        + '<g onclick="rmCut(\''+id+'\')"><rect class="hit" x="'+mx+'" y="'+(my-11)+'" width="24" height="22" /><text x="'+(mx+12)+'" y="'+(my+5)+'" text-anchor="middle">−</text></g>'
+        + '<line x1="'+mx+'" y1="'+(my-6)+'" x2="'+mx+'" y2="'+(my+6)+'" class="sep" />'
+        + '</g>';
+    }
+  });
+  // 동그라미 오른쪽 위의 작은 ＋: 이 사람(또는 나)에게 새 사람을 거미줄처럼 이어 붙인다.
+  function addBadge(id, cx, cy){
+    return '<g class="rm-add" data-id="'+id+'" onclick="rmAddChild(\''+id+'\')"><circle cx="'+cx+'" cy="'+cy+'" r="9"/><text x="'+cx+'" y="'+(cy+4.5)+'" text-anchor="middle">+</text></g>';
+  }
+  const moving = rmMoveId;
+  svg += '<g class="rm-node'+(moving && moving!=="__root__"?" rm-pick":"")+'" data-id="__root__" onclick="rmTap(\'__root__\')"><circle cx="0" cy="0" r="27" fill="var(--ink)"/><text x="0" y="5" text-anchor="middle" fill="var(--bg)">나</text></g>';
+  if(!moving) svg += addBadge("__root__", 21, -21);
   nodes.forEach(function(n){
     const p = n.person;
-    const fill = p.kind==="sponsor" ? "var(--accent)" : "var(--gold)";
     const dashed = !p.memberNo;
-    svg += '<g class="rm-node" onclick="openPersonEditor(\''+p.id+'\',\''+p.kind+'\')">'
-      + '<circle cx="'+n.x+'" cy="'+n.y+'" r="21" fill="'+(dashed? "var(--card)":fill)+'" stroke="'+fill+'" stroke-width="2.5" stroke-dasharray="'+(dashed?"4,3":"0")+'"/>'
-      + '<text x="'+n.x+'" y="'+(p.memberNo? n.y-2 : n.y+4)+'" text-anchor="middle" style="font-size:10px;font-weight:800" fill="'+(dashed? "var(--ink)":"#fff")+'">'+esc((p.name||"?").slice(0,4))+'</text>'
-      + (p.memberNo? '<text x="'+n.x+'" y="'+(n.y+9)+'" text-anchor="middle" style="font-size:8px" fill="'+(dashed? "var(--sub)":"rgba(255,255,255,.85)")+'">'+esc(p.memberNo.slice(0,8))+'</text>' : '')
+    const fill = "var(--accent)";
+    let cls = "rm-node";
+    if(moving){
+      if(p.id===moving) cls += " rm-dragging";
+      else if(descendantIds(moving).indexOf(p.id)===-1) cls += " rm-pick";
+    }
+    svg += '<g class="'+cls+'" data-id="'+p.id+'" onclick="rmTap(\''+p.id+'\')">'
+      + '<circle cx="'+n.x+'" cy="'+n.y+'" r="21" fill="'+(dashed? "var(--card)":"var(--rm-fill)")+'" stroke="'+(dashed? "var(--rm-dash)":fill)+'" stroke-width="2" stroke-dasharray="'+(dashed?"4,3":"0")+'"/>'
+      + '<text x="'+n.x+'" y="'+(p.memberNo? n.y-2 : n.y+4)+'" text-anchor="middle" style="font-size:10px;font-weight:800" fill="var(--ink)">'+esc((p.name||"?").slice(0,4))+'</text>'
+      + (p.memberNo? '<text x="'+n.x+'" y="'+(n.y+9)+'" text-anchor="middle" style="font-size:8px" fill="var(--sub)">'+esc(p.memberNo.slice(0,8))+'</text>' : '')
       + '</g>';
+    if(!moving) svg += addBadge(p.id, n.x+16, n.y-16);
   });
   svg += '</svg>';
-  wrap.innerHTML = svg;
+  const bar = moving
+    ? '<div class="rm-movebar"><span><b>'+esc((personById(moving)||{}).name||"")+'</b>님을 연결할 동그라미(또는 나)를 누르세요</span><button type="button" onclick="rmMoveCancel()">취소</button></div>'
+    : '';
+  wrap.innerHTML = bar + svg + (nodes.length? '' : '<div class="rm-empty" style="padding:6px 20px 16px">나 옆의 ＋를 눌러 첫 사람을 연결해 보세요</div>');
+  const zl = document.getElementById("rm-zoom-label");
+  if(zl) zl.textContent = rmZoom===0 ? "전체" : Math.round(rmZoom*100)+"%";
 }
+let rmZoom = 0; // 0 = 전체 보기(화면에 맞춤)
+function rmZoomBy(dir){
+  const svg = document.querySelector("#rm-wrap svg");
+  const wrap = document.getElementById("rm-wrap");
+  let cur = rmZoom;
+  if(cur===0 && svg){ cur = svg.getAttribute("width") / (svg.getAttribute("data-base")||1); }
+  const steps = [0.4,0.55,0.7,0.85,1,1.25,1.5,1.8];
+  let i = steps.findIndex(function(v){ return v >= cur-0.001; });
+  if(i<0) i = steps.length-1;
+  if(dir>0) i = Math.min(steps.length-1, steps[i]>cur+0.001 ? i : i+1);
+  else i = Math.max(0, steps[i]<cur-0.001 ? i : i-1);
+  rmZoom = steps[i];
+  renderRoadmap();
+  if(wrap){ wrap.scrollLeft = (wrap.scrollWidth - wrap.clientWidth)/2; }
+}
+function rmZoomFit(){ rmZoom = 0; renderRoadmap(); }
+
+// ---- 로스맵 조작 ----
+let rmSuppressUntil = 0;   // 꾹 눌러 옮긴 직후 손을 뗄 때 생기는 탭은 무시
+let rmMoveId = null;       // [옮기기]를 누른 뒤 붙일 곳을 고르는 중인 사람
+function rmTap(id){
+  if(Date.now() < rmSuppressUntil) return;
+  if(rmMoveId){ rmMoveTo(id); return; }
+  if(id==="__root__") openRmCenter();
+  else openRmPerson(id);
+}
+// 사람을 누르면 할 일을 고르는 작은 창을 띄운다.
+function openRmPerson(id){
+  const p = personById(id);
+  if(!p) return;
+  const up = p.parentId ? ((personById(p.parentId)||{}).name || "") : "나";
+  const kids = state.people.filter(function(x){ return x.parentId===p.id; }).length;
+  document.getElementById("rmpop-body").innerHTML = '<div>'+esc(p.name||"(이름없음)")+'</div>'
+    + '<div style="font-size:12px;color:var(--sub);font-weight:400;margin-top:4px">'+esc(up)+'에게 연결됨 · 아래로 '+kids+'명'+(p.memberNo? ' · 회원 '+esc(p.memberNo):'')+'</div>'
+    + '<div class="rm-acts">'
+    +   '<button type="button" onclick="closeRmPopup();rmAddChild(\''+p.id+'\')">＋ '+esc(p.name)+'에게 연결해서 추가</button>'
+    +   '<button type="button" onclick="closeRmPopup();rmMoveStart(\''+p.id+'\')">↔ 다른 사람에게 옮기기</button>'
+    +   '<button type="button" onclick="closeRmPopup();openPersonEditor(\''+p.id+'\',\''+p.kind+'\')">✎ 정보 보기 · 수정</button>'
+    + '</div>';
+  document.getElementById("rmpop").classList.add("on");
+}
+// 누구에게든(나 포함) 새 사람을 이어 붙인다. 한 사람에게 여러 명을 붙이면 거미줄처럼 갈라진다.
+function rmAddChild(parentId){
+  if(Date.now() < rmSuppressUntil) return;
+  const par = parentId==="__root__" ? null : personById(parentId);
+  openPersonEditor(null, "sponsor");
+  document.getElementById("pm-parent").value = par ? par.id : "";
+  document.getElementById("pm-title").textContent = (par ? par.name : "나")+"에게 연결해서 추가";
+}
+// 선 위 ＋: 위쪽 사람(또는 나)과 아래쪽 사람 사이에 새 사람을 끼워 넣는다.
+function rmInsert(childId){
+  if(Date.now() < rmSuppressUntil) return;
+  const child = personById(childId);
+  if(!child) return;
+  openPersonEditor(null, "sponsor");
+  pmInsert = { parentId: child.parentId || null, childId: child.id };
+  document.getElementById("pm-parent").value = child.parentId || "";
+  const upName = child.parentId ? ((personById(child.parentId)||{}).name || "") : "나";
+  document.getElementById("pm-title").textContent = upName+" – "+(child.name||"")+" 사이에 추가";
+}
+// 선 위 −: 연결을 끊는다. 아래쪽 사람(과 그 아래 라인)은 나에게 바로 연결된다.
+function rmCut(childId){
+  if(Date.now() < rmSuppressUntil) return;
+  const child = personById(childId);
+  if(!child || !child.parentId) return;
+  const parent = personById(child.parentId);
+  askConfirm((parent? parent.name : "")+" – "+child.name+" 연결을 끊을까요? "+child.name+"님은 나에게 바로 연결됩니다.", function(){
+    child.parentId = null;
+    child.updatedAt = Date.now();
+    persist(); crmPush(child.id);
+    renderRoadmap();
+    toast("연결을 끊었습니다");
+  });
+}
+// 사람을 다른 사람(또는 나) 아래로 옮긴다. 꾹 끌어다 놓기와 [옮기기] 둘 다 여기로 온다.
+function rmReparent(id, targetId){
+  const p = personById(id);
+  if(!p) return false;
+  const newParent = (!targetId || targetId==="__root__") ? null : targetId;
+  if(newParent===p.id) return false;
+  if(newParent && (descendantIds(p.id).indexOf(newParent)>=0 || wouldCycle(p.id, newParent))){
+    toast(p.name+"님 아래에 있는 사람에게는 붙일 수 없습니다");
+    return false;
+  }
+  if((p.parentId||null) === newParent){ toast("이미 그렇게 연결되어 있습니다"); return false; }
+  p.parentId = newParent;
+  p.updatedAt = Date.now();
+  persist(); crmPush(p.id);
+  const tn = newParent ? (personById(newParent)||{}).name : "나";
+  toast(p.name+"님을 "+tn+"에게 연결했습니다");
+  return true;
+}
+function rmMoveStart(id){ rmMoveId = id; renderRoadmap(); }
+function rmMoveCancel(){ rmMoveId = null; renderRoadmap(); }
+function rmMoveTo(targetId){
+  const id = rmMoveId;
+  if(targetId===id){ rmMoveCancel(); return; }
+  // 붙일 수 없는 곳을 눌렀으면 안내만 하고 계속 고를 수 있게 둔다.
+  if(rmReparent(id, targetId)) rmMoveId = null;
+  renderRoadmap();
+}
+// ---- 동그라미를 꾹 눌러 끌어다 놓기 ----
+// 아이폰 사파리는 오래 누르면 글자 선택·미리보기가 끼어들어 터치가 취소되기 쉬워서,
+// 동그라미 위에서 시작한 터치는 기본 동작을 막고 탭·꾹 누르기를 직접 판단한다.
+(function setupRoadmapDrag(){
+  const wrap = document.getElementById("rm-wrap");
+  if(!wrap) return;
+  const HOLD_MS = 380, MOVE_TOL = 12;
+  let timer = null, start = null, drag = null, last = null, scrollTimer = null;
+  function pt(e){ const t = e.touches ? (e.touches[0] || e.changedTouches[0]) : e; return { x:t.clientX, y:t.clientY }; }
+  function hitAt(x, y){
+    const el = document.elementFromPoint(x, y);
+    if(!el || !el.closest) return null;
+    const add = el.closest(".rm-add");
+    if(add) return { kind:"add", id:add.getAttribute("data-id") };
+    const g = el.closest(".rm-node");
+    if(g) return { kind:"node", id:g.getAttribute("data-id") };
+    return null;
+  }
+  function toSvg(svg, x, y){
+    const m = svg.getScreenCTM();
+    if(!m) return { x:0, y:0 };
+    const p = svg.createSVGPoint(); p.x = x; p.y = y;
+    const r = p.matrixTransform(m.inverse());
+    return { x:r.x, y:r.y };
+  }
+  function autoScroll(){
+    if(!drag || !last) return;
+    const E = 56, SP = 14;
+    let dy = 0, dx = 0;
+    if(last.y < E) dy = -SP; else if(last.y > window.innerHeight - E) dy = SP;
+    const r = wrap.getBoundingClientRect();
+    if(last.x < r.left + E) dx = -SP; else if(last.x > r.right - E) dx = SP;
+    if(dy) window.scrollBy(0, dy);
+    if(dx) wrap.scrollLeft += dx;
+    if(dx || dy) move(last);
+  }
+  function clearTarget(){ wrap.querySelectorAll(".rm-target").forEach(function(g){ g.classList.remove("rm-target"); }); }
+  function cancel(){ clearTimeout(timer); timer = null; start = null; }
+  function begin(id, p){
+    const svg = wrap.querySelector("svg");
+    const g = wrap.querySelector('.rm-node[data-id="'+id+'"]');
+    if(!svg || !g) return;
+    g.classList.add("rm-dragging");
+    const person = personById(id);
+    const ns = "http://www.w3.org/2000/svg";
+    const ghost = document.createElementNS(ns, "g");
+    ghost.setAttribute("class", "rm-ghost");
+    const c = document.createElementNS(ns, "circle"); c.setAttribute("r", "23");
+    const t = document.createElementNS(ns, "text"); t.setAttribute("text-anchor", "middle"); t.setAttribute("y", "4");
+    t.textContent = (person && person.name || "?").slice(0,4);
+    ghost.appendChild(c); ghost.appendChild(t);
+    svg.appendChild(ghost);
+    drag = { id:id, svg:svg, g:g, ghost:ghost, target:null };
+    move(p);
+    clearInterval(scrollTimer); scrollTimer = setInterval(autoScroll, 30);
+    try{ if(navigator.vibrate) navigator.vibrate(15); }catch(e){}
+    wrap.classList.add("rm-dragmode");
+  }
+  function move(p){
+    last = p;
+    const s = toSvg(drag.svg, p.x, p.y);
+    drag.ghost.setAttribute("transform", "translate("+s.x+","+s.y+")");
+    const h = hitAt(p.x, p.y);
+    const tid = h && h.kind==="node" ? h.id : null;
+    clearTarget();
+    drag.target = null;
+    if(tid && tid!==drag.id && (tid==="__root__" || descendantIds(drag.id).indexOf(tid)===-1)){
+      drag.target = tid;
+      const tg = wrap.querySelector('.rm-node[data-id="'+tid+'"]');
+      if(tg) tg.classList.add("rm-target");
+    }
+  }
+  function finish(){
+    const d = drag; drag = null;
+    clearInterval(scrollTimer); scrollTimer = null; last = null;
+    wrap.classList.remove("rm-dragmode");
+    rmSuppressUntil = Date.now() + 600;
+    clearTarget();
+    if(d.ghost && d.ghost.parentNode) d.ghost.parentNode.removeChild(d.ghost);
+    d.g.classList.remove("rm-dragging");
+    if(d.target) rmReparent(d.id, d.target);
+    renderRoadmap();
+  }
+  // ---- 터치 ----
+  wrap.addEventListener("touchstart", function(e){
+    if(e.touches.length>1){ cancel(); return; }
+    const p = pt(e);
+    const h = hitAt(p.x, p.y);
+    if(!h) return;               // 빈 곳·선 위 ＋− 는 기본 동작(스크롤·탭) 그대로
+    e.preventDefault();          // 글자 선택·미리보기·확대 방지
+    start = { x:p.x, y:p.y, hit:h, moved:false };
+    clearTimeout(timer);
+    if(h.kind==="node" && h.id!=="__root__" && !rmMoveId){
+      timer = setTimeout(function(){ timer = null; if(start){ begin(start.hit.id, start); } }, HOLD_MS);
+    }
+  }, { passive:false });
+  wrap.addEventListener("touchmove", function(e){
+    const p = pt(e);
+    if(drag){ e.preventDefault(); move(p); return; }
+    if(start && (Math.abs(p.x-start.x)>MOVE_TOL || Math.abs(p.y-start.y)>MOVE_TOL)){
+      start.moved = true; clearTimeout(timer); timer = null;
+      // 동그라미에서 시작해 손가락을 움직이면 지도를 직접 스크롤해 준다.
+      window.scrollBy(0, start.y - p.y); wrap.scrollLeft += (start.x - p.x);
+      start.x = p.x; start.y = p.y;
+      e.preventDefault();
+    }
+  }, { passive:false });
+  wrap.addEventListener("touchend", function(e){
+    if(drag){ e.preventDefault(); finish(); cancel(); return; }
+    if(start && !start.moved){
+      e.preventDefault();
+      const h = start.hit;
+      cancel();
+      if(h.kind==="add") rmAddChild(h.id); else rmTap(h.id);
+      return;
+    }
+    cancel();
+  }, { passive:false });
+  wrap.addEventListener("touchcancel", function(){ if(drag) finish(); cancel(); }, { passive:true });
+  // ---- 마우스(PC) ----
+  wrap.addEventListener("mousedown", function(e){
+    if(e.button!==0 || rmMoveId) return;
+    const p = pt(e);
+    const h = hitAt(p.x, p.y);
+    if(!h || h.kind!=="node" || h.id==="__root__") return;
+    start = { x:p.x, y:p.y, hit:h };
+    clearTimeout(timer);
+    timer = setTimeout(function(){ timer = null; if(start) begin(start.hit.id, start); }, HOLD_MS);
+  });
+  window.addEventListener("mousemove", function(e){
+    if(!drag && !start) return;
+    const p = pt(e);
+    if(drag){ e.preventDefault(); move(p); return; }
+    if(Math.abs(p.x-start.x)>MOVE_TOL || Math.abs(p.y-start.y)>MOVE_TOL) cancel();
+  });
+  window.addEventListener("mouseup", function(){ if(drag) finish(); cancel(); });
+  wrap.addEventListener("contextmenu", function(e){ if(e.target.closest && e.target.closest(".rm-node,.rm-add")) e.preventDefault(); });
+})();
 function openRmCenter(){
   const withMember = state.people.filter(function(p){ return !!p.memberNo; });
-  const consumers = state.people.filter(function(p){ return p.kind==="consumer"; });
-  const partners = state.people.filter(function(p){ return p.kind==="sponsor"; });
-  const lines = (buildPeopleTree()["__root__"]||[]).filter(function(p){ return p.kind==="sponsor"; }).length;
+  const lines = (buildPeopleTree()["__root__"]||[]).length;
   document.getElementById("rmpop-body").innerHTML = '<div>나</div>'
-    + '<div style="font-size:12px;color:var(--sub);font-weight:400;margin-top:4px">직속 라인 '+lines+'개 · 파트너 '+partners.length+'명(회원번호 '+withMember.length+'명) · 소비자 '+consumers.length+'명</div>';
+    + '<div style="font-size:12px;color:var(--sub);font-weight:400;margin-top:4px">직속 라인 '+lines+'개 · 전체 '+state.people.length+'명(회원번호 '+withMember.length+'명)</div>'
+    + '<div class="rm-acts"><button type="button" onclick="closeRmPopup();rmAddChild(\'__root__\')">＋ 나에게 연결해서 추가</button></div>';
   document.getElementById("rmpop").classList.add("on");
 }
 function closeRmPopup(){ document.getElementById("rmpop").classList.remove("on"); }
@@ -2073,6 +2919,7 @@ function resolveSvgColors(markup){
   });
 }
 async function saveRoadmapImage(){
+  if(rmMoveId){ rmMoveId = null; renderRoadmap(); }
   const svgEl = document.querySelector("#rm-wrap svg");
   if(!svgEl){ toast("저장할 로스맵이 없습니다. 먼저 소비자·파트너를 추가해 주세요"); return; }
   const cs = getComputedStyle(document.documentElement);
@@ -2083,7 +2930,9 @@ async function saveRoadmapImage(){
   const W = vb[2] || 300, H = vb[3] || 300;
   const pad = 40, headerH = 92, footerH = 40;
 
-  let markup = svgEl.outerHTML;
+  const clone = svgEl.cloneNode(true);
+  clone.querySelectorAll(".rm-ctl,.rm-ghost,.rm-add").forEach(function(n){ n.parentNode.removeChild(n); });
+  let markup = clone.outerHTML;
   if(markup.indexOf("xmlns=")===-1) markup = markup.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
   markup = resolveSvgColors(markup);
   const svgUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(markup);
@@ -2312,7 +3161,7 @@ function personPayload(p){
   const hist = (p.history||[]).slice().sort(function(a,b){ return (a.date||"").localeCompare(b.date||""); })
     .map(function(h){ return h.date+" "+h.content; }).join(" / ");
   return {
-    id: p.id, owner: sync.name || "", kind: (p.kind==="sponsor"?"파트너":"소비자"),
+    id: p.id, owner: sync.name || "", kind: [hasRole(p,"consumer")?"소비자":"", hasRole(p,"sponsor")?"파트너":""].filter(Boolean).join("·"),
     name: p.name||"", contact: p.contact||"", memberNo: p.memberNo||"",
     stage: stages[Math.min(p.stage, stages.length-1)] || "",
     leg: legNameOf(p), parent: parent ? parent.name : "나",
@@ -2601,19 +3450,28 @@ function loadBackupFile(inp){
 
 // ---------- 앱 내 확인 창 ----------
 let cfmCb = null;
-function askConfirm(msg, cb){
+let cfmNoCb = null;
+// opts: { yes:"버튼 글자", no:"버튼 글자", onNo:함수 } — 생략하면 기본 [확인]/[취소]
+function askConfirm(msg, cb, opts){
+  opts = opts || {};
   cfmCb = cb;
+  cfmNoCb = opts.onNo || null;
   document.getElementById("cfm-msg").textContent = msg;
+  const bs = document.querySelectorAll("#cfm .btnrow .btn");
+  if(bs[0]) bs[0].textContent = opts.no || "취소";
+  if(bs[1]) bs[1].textContent = opts.yes || "확인";
   document.getElementById("cfm").classList.add("on");
 }
 function cfmYes(){
   document.getElementById("cfm").classList.remove("on");
-  const f = cfmCb; cfmCb = null;
+  const f = cfmCb; cfmCb = null; cfmNoCb = null;
   if(f) f();
 }
 function cfmNo(){
   document.getElementById("cfm").classList.remove("on");
   cfmCb = null;
+  const g = cfmNoCb; cfmNoCb = null;
+  if(g){ g(); return; }
   toast("취소되었습니다");
 }
 
@@ -2622,6 +3480,8 @@ let toastTimer;
 function toast(msg){
   const t = document.getElementById("toast");
   t.textContent = msg;
+  // 표시용 톤(성공·실패·보상)만 붙인다. 동작에는 영향 없음.
+  try{ t.setAttribute("data-tone", /실패|문제|오류|올바르지|제한|취소되었|없습니다|넣어주세요|적어주세요|붙일 수 없/.test(msg) ? "err" : (/100% 달성/.test(msg) ? "reward" : (/✓|성공|저장되었|복원되었|보냈습니다|연결했습니다|끊었습니다|시작했습니다/.test(msg) ? "ok" : ""))); }catch(e){}
   t.classList.add("on");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>t.classList.remove("on"), 3000);
@@ -2632,6 +3492,7 @@ load();
 loadSync();
 loadCrmSync();
 try{ migrateLinkedEntries(); }catch(e){ console.error("migrate 오류:", e); }
+try{ const mg = mergeSameNamePeople(); if(mg.length){ persist(); mg.forEach(crmPush); } }catch(e){ console.error("merge 오류:", e); }
 renderCal();
 // Claude 아티팩트 안에서는 외부 주소로의 전송이 막혀 있어 연동 칸을 숨긴다.
 // (깃허브 등 일반 웹페이지로 열었을 때만 구글 시트 연동을 쓸 수 있다)

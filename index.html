@@ -1272,7 +1272,7 @@ function renderItems(){
   document.getElementById("items").innerHTML = html + peopleDatalists();
   updatePct();
 }
-// 소비자관리·STP·신뢰쌓기는 항목 이름 아래에 만난 사람 이름만 칩으로 보여준다.
+// 소비자관리·STP·신뢰쌓기는 항목 이름 아래에 기록한 사람 이름만 칩으로 보여준다.
 function peopleChips(d, i){
   const names = entriesOf(d, i).map(function(e){ return (e.name||"").trim(); }).filter(Boolean);
   if(!names.length) return '';
@@ -1297,7 +1297,7 @@ function entriesHtml(d, i){
   const list = entriesOf(d, i);
   const dl = LINK_ITEMS[i].kind==="sponsor" ? "dl-sponsor" : "dl-consumer";
   const who = LINK_ITEMS[i].kind==="sponsor" ? "파트너" : "소비자";
-  let h = '<div class="ent-head"><span>만난 사람 '+list.length+'명</span><span>'+who+' 탭·로스맵에 자동 등록</span></div>';
+  let h = '<div class="ent-head"><span>'+who+' 탭·로스맵에 자동 등록</span></div>';
   if(!list.length) h += '<div class="ent-empty">아래 [＋ 사람 추가]를 눌러 한 명씩 기록하세요</div>';
   list.forEach(function(e){
     h += '<div class="ent">'
